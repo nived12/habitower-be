@@ -1,9 +1,9 @@
-# Kinetic API
+# Habitower API
 
-Kinetic is a multiplayer habit-stacking platform designed for mobile-first engagement.
+Habitower is a multiplayer habit-stacking platform designed for mobile-first engagement.
 
 ## Core Concept: The Stack
-Unlike traditional habit trackers, Kinetic focuses on "Stacking." Users join a challenge that adds a new requirement every week. By week 4, the user is tracking 4 different habits simultaneously. 
+Unlike traditional habit trackers, Habitower focuses on "Stacking." Users join a challenge that adds a new requirement every week. By week 4, the user is tracking 4 different habits simultaneously. 
 
 ## Key Features
 - **Blueprint System:** `Challenges` act as templates. `Groups` are the live instances people join.
