@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_30_012306) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_30_013819) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,41 +22,49 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_012306) do
     t.jsonb "requirements", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "discarded_at"
     t.index ["challenge_id"], name: "index_challenge_steps_on_challenge_id"
     t.index ["creator_id"], name: "index_challenge_steps_on_creator_id"
+    t.index ["discarded_at"], name: "index_challenge_steps_on_discarded_at"
   end
 
   create_table "challenges", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
-    t.string "period_type", null: false
+    t.string "period_type", default: "weekly", null: false
     t.jsonb "rules", default: {}, null: false
     t.bigint "creator_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "discarded_at"
     t.index ["creator_id"], name: "index_challenges_on_creator_id"
+    t.index ["discarded_at"], name: "index_challenges_on_discarded_at"
   end
 
   create_table "groups", force: :cascade do |t|
     t.bigint "challenge_id", null: false
     t.bigint "creator_id", null: false
     t.date "start_date", null: false
-    t.string "privacy_type", null: false
+    t.string "privacy_type", default: "public", null: false
     t.string "invite_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "discarded_at"
     t.index ["challenge_id"], name: "index_groups_on_challenge_id"
     t.index ["creator_id"], name: "index_groups_on_creator_id"
+    t.index ["discarded_at"], name: "index_groups_on_discarded_at"
     t.index ["invite_code"], name: "index_groups_on_invite_code"
   end
 
   create_table "memberships", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "group_id", null: false
-    t.string "role", null: false
-    t.string "status", null: false
+    t.string "role", default: "member", null: false
+    t.string "status", default: "active", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "discarded_at"
+    t.index ["discarded_at"], name: "index_memberships_on_discarded_at"
     t.index ["group_id"], name: "index_memberships_on_group_id"
     t.index ["user_id", "group_id"], name: "index_memberships_on_user_id_and_group_id", unique: true
     t.index ["user_id"], name: "index_memberships_on_user_id"
@@ -71,7 +79,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_012306) do
     t.string "proof_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "discarded_at"
     t.index ["challenge_step_id"], name: "index_progress_logs_on_challenge_step_id"
+    t.index ["discarded_at"], name: "index_progress_logs_on_discarded_at"
     t.index ["membership_id"], name: "index_progress_logs_on_membership_id"
   end
 

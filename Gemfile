@@ -9,6 +9,9 @@ gem "puma", ">= 5.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# Soft delete (discard) for traceability
+gem "discard"
+
 # Authentication
 gem "devise"
 gem "devise-jwt"
@@ -44,7 +47,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  gem "brakeman", require: false
+  gem "brakeman", "~> 8.0", require: false
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
@@ -57,4 +60,8 @@ group :development, :test do
   # Testing
   gem "rspec-rails"
   gem "database_cleaner-active_record"
+  gem "factory_bot_rails"
+
+  # Schema annotations in models (run after migrations: bundle exec annotate)
+  gem "annotate"
 end

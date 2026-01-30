@@ -74,6 +74,9 @@ GEM
       uri (>= 0.13.1)
     addressable (2.8.8)
       public_suffix (>= 2.0.2, < 8.0)
+    annotate (2.6.5)
+      activerecord (>= 2.3.0)
+      rake (>= 0.8.7)
     ast (2.4.3)
     base64 (0.3.0)
     bcrypt (3.1.21)
@@ -84,7 +87,7 @@ GEM
     bigdecimal (4.0.1)
     bootsnap (1.21.1)
       msgpack (~> 1.2)
-    brakeman (7.1.2)
+    brakeman (8.0.1)
       racc
     builder (3.3.0)
     concurrent-ruby (1.3.6)
@@ -108,6 +111,8 @@ GEM
       devise (>= 4.0.0, < 6.0.0)
       warden-jwt_auth (~> 0.10)
     diff-lcs (1.6.2)
+    discard (1.4.0)
+      activerecord (>= 4.2, < 9.0)
     dotenv (3.2.0)
     drb (2.2.3)
     dry-auto_inject (1.1.0)
@@ -125,6 +130,11 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    factory_bot (6.5.6)
+      activesupport (>= 6.1.0)
+    factory_bot_rails (6.5.1)
+      factory_bot (~> 6.5)
+      railties (>= 6.1.0)
     fugit (1.12.1)
       et-orbi (~> 1.4)
       raabro (~> 1.4)
@@ -406,12 +416,15 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  annotate
   bootsnap
-  brakeman
+  brakeman (~> 8.0)
   database_cleaner-active_record
   debug
   devise
   devise-jwt
+  discard
+  factory_bot_rails
   jbuilder
   kamal
   pg (~> 1.1)
