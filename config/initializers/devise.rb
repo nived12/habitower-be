@@ -313,7 +313,8 @@ Devise.setup do |config|
 
   # ==> JWT configuration (devise-jwt)
   config.jwt do |jwt|
-    jwt.secret = Rails.application.credentials.secret_key_base
+    # Use credentials when available (dev/prod); fall back to secret_key_base for test/CI (no master key)
+    jwt.secret = Rails.application.credentials.secret_key_base.presence || Rails.application.secret_key_base
     jwt.dispatch_requests = [
       ["POST", %r{^/api/v1/auth/login$}],
       ["POST", %r{^/api/v1/auth/sign_up$}]

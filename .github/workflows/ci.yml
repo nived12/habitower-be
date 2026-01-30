@@ -2,7 +2,6 @@ name: CI
 
 on:
   pull_request:
-  push:
 
 jobs:
   test:
@@ -25,6 +24,8 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/habitower_be_test
+      # Devise JWT needs a secret when credentials aren't decrypted in CI. Set TEST_SECRET_KEY_BASE in repo Actions secrets.
+      SECRET_KEY_BASE: ${{ secrets.TEST_SECRET_KEY_BASE }}
 
     steps:
       - name: Checkout code
