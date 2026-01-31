@@ -5,35 +5,35 @@ require "rails_helper"
 RSpec.describe(ProgressLog, type: :model) do
   let(:creator) { create(:user) }
   let(:user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
-  let(:group) { create(:group, challenge: challenge, creator: creator) }
+  let(:challenge_template) { create(:challenge_template, creator: creator) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
   let(:membership) { create(:membership, user: user, group: group) }
-  let(:challenge_step) { create(:challenge_step, challenge: challenge, creator: creator) }
+  let(:group_step) { create(:group_step, group: group, creator: creator) }
   let(:log) do
-    create(:progress_log, membership: membership, challenge_step: challenge_step)
+    create(:progress_log, membership: membership, group_step: group_step)
   end
 
   describe "validations" do
     it "validates presence of membership" do
-      invalid = build(:progress_log, membership: nil, challenge_step: challenge_step)
+      invalid = build(:progress_log, membership: nil, group_step: group_step)
       expect(invalid).not_to(be_valid)
       expect(invalid.errors[:membership]).to(include("must exist"))
     end
 
-    it "validates presence of challenge_step" do
-      invalid = build(:progress_log, membership: membership, challenge_step: nil)
+    it "validates presence of group_step" do
+      invalid = build(:progress_log, membership: membership, group_step: nil)
       expect(invalid).not_to(be_valid)
-      expect(invalid.errors[:challenge_step]).to(include("must exist"))
+      expect(invalid.errors[:group_step]).to(include("must exist"))
     end
 
     it "validates presence of value" do
-      invalid = build(:progress_log, membership: membership, challenge_step: challenge_step, value: nil)
+      invalid = build(:progress_log, membership: membership, group_step: group_step, value: nil)
       expect(invalid).not_to(be_valid)
       expect(invalid.errors[:value]).to(include("can't be blank"))
     end
 
     it "validates presence of occurred_at" do
-      invalid = build(:progress_log, membership: membership, challenge_step: challenge_step, occurred_at: nil)
+      invalid = build(:progress_log, membership: membership, group_step: group_step, occurred_at: nil)
       expect(invalid).not_to(be_valid)
       expect(invalid.errors[:occurred_at]).to(include("can't be blank"))
     end
@@ -44,8 +44,8 @@ RSpec.describe(ProgressLog, type: :model) do
       expect(log.membership).to(eq(membership))
     end
 
-    it "belongs to challenge_step" do
-      expect(log.challenge_step).to(eq(challenge_step))
+    it "belongs to group_step" do
+      expect(log.group_step).to(eq(group_step))
     end
   end
 

@@ -21,12 +21,12 @@ RSpec.describe(User, type: :model) do
 
   describe "associations" do
     let(:user) { create(:user) }
-    let(:challenge) { create(:challenge, creator: user) }
-    let(:group) { create(:group, challenge: create(:challenge, creator: user), creator: user) }
+    let(:challenge_template) { create(:challenge_template, creator: user) }
+    let(:group) { create(:group, challenge_template: challenge_template, creator: user) }
     let(:membership) { create(:membership, user: user, group: group) }
 
-    it "has many created_challenges" do
-      expect(user.created_challenges).to(include(challenge))
+    it "has many created_challenge_templates" do
+      expect(user.created_challenge_templates).to(include(challenge_template))
     end
 
     it "has many memberships" do

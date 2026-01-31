@@ -16,6 +16,9 @@ gem "discard"
 gem "devise"
 gem "devise-jwt"
 
+# Authorization
+gem "pundit"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 
@@ -41,6 +44,9 @@ gem "thruster", require: false
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 gem "rack-cors"
+
+# Google Cloud Storage for signed upload URLs
+gem "google-cloud-storage"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

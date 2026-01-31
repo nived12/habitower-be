@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :group do
-    association :challenge
+    association :challenge_template
     start_date { Date.current }
     privacy_type { "public" }
     association :creator, factory: :user
