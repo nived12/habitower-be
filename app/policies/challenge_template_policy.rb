@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ChallengePolicy < ApplicationPolicy
+class ChallengeTemplatePolicy < ApplicationPolicy
   def index?
     true
   end

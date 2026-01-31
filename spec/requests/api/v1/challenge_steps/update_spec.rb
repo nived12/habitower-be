@@ -6,7 +6,7 @@ RSpec.describe("PATCH /api/v1/challenges/:challenge_id/challenge_steps/:id", typ
   let(:creator) { create(:user) }
   let(:other_user) { create(:user) }
   let(:challenge) { create(:challenge, creator: creator) }
-  let(:challenge_step) { create(:challenge_step, challenge: challenge, creator: creator, title: "Original") }
+  let(:challenge_step) { create(:challenge_step, challenge_template: challenge, creator: creator, title: "Original") }
 
   subject(:do_request) do
     patch "/api/v1/challenges/#{challenge.id}/challenge_steps/#{challenge_step.id}",

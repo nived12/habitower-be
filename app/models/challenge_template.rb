@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Challenge < ApplicationRecord
+class ChallengeTemplate < ApplicationRecord
   include Discard::Model
 
   validates :title, presence: true
@@ -9,12 +9,12 @@ class Challenge < ApplicationRecord
   enum :privacy_type, { public: "public", private: "private" }, default: :public, validate: true, prefix: true
 
   belongs_to :creator, class_name: "User"
-  has_many :challenge_steps, dependent: :destroy
+  has_many :challenge_step_templates, dependent: :destroy
   has_many :groups, dependent: :destroy
   has_many :memberships, through: :groups
   has_many :members, through: :memberships, source: :user
 
-  after_discard { challenge_steps.discard_all; groups.discard_all }
+  after_discard { challenge_step_templates.discard_all; groups.discard_all }
 
   scope :visible_to, ->(user) {
     left_joins(:memberships)
@@ -27,7 +27,7 @@ end
 
 # == Schema Information
 #
-# Table name: challenges
+# Table name: challenge_templates
 #
 #  id                   :integer            not null, primary key
 #  title                :string             not null
@@ -42,7 +42,7 @@ end
 #
 # Indexes
 #
-#  index_challenges_on_creator_id (creator_id)
-#  index_challenges_on_discarded_at (discarded_at)
-#  index_challenges_on_privacy_type (privacy_type)
+#  index_challenge_templates_on_creator_id (creator_id)
+#  index_challenge_templates_on_discarded_at (discarded_at)
+#  index_challenge_templates_on_privacy_type (privacy_type)
 #

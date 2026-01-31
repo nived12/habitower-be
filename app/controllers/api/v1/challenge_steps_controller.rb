@@ -7,9 +7,9 @@ module Api
       before_action :set_challenge_step, only: [:show, :update, :destroy]
 
       def index
-        @challenge_steps = @challenge.challenge_steps.kept.order(:position)
+        @challenge_steps = @challenge.challenge_step_templates.kept.order(:position)
 
-        authorize(@challenge_steps.first || @challenge.challenge_steps.build)
+        authorize(@challenge_steps.first || @challenge.challenge_step_templates.build)
       end
 
       def show
@@ -17,7 +17,7 @@ module Api
       end
 
       def create
-        @challenge_step = @challenge.challenge_steps.build(challenge_step_params)
+        @challenge_step = @challenge.challenge_step_templates.build(challenge_step_params)
         @challenge_step.creator = current_user
 
         authorize(@challenge_step)
@@ -45,11 +45,11 @@ module Api
       private
 
       def set_challenge
-        @challenge = Challenge.kept.find(params[:challenge_id])
+        @challenge = ChallengeTemplate.kept.find(params[:challenge_id])
       end
 
       def set_challenge_step
-        @challenge_step = @challenge.challenge_steps.kept.find(params[:id])
+        @challenge_step = @challenge.challenge_step_templates.kept.find(params[:id])
       end
 
       def challenge_step_params

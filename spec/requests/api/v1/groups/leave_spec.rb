@@ -5,8 +5,8 @@ require "rails_helper"
 RSpec.describe("DELETE /api/v1/groups/:id/leave", type: :request) do
   let(:user) { create(:user) }
   let(:creator) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
-  let(:group) { create(:group, challenge: challenge, creator: creator) }
+  let(:challenge_template) { create(:challenge_template, creator: creator) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
 
   subject(:do_request) do
     delete "/api/v1/groups/#{group.id}/leave", headers: auth_headers(user)

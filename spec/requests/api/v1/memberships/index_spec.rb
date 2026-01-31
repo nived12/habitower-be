@@ -5,8 +5,8 @@ require "rails_helper"
 RSpec.describe("GET /api/v1/groups/:group_id/memberships", type: :request) do
   let(:user) { create(:user) }
   let(:admin) { create(:user) }
-  let(:challenge) { create(:challenge, creator: admin) }
-  let(:group) { create(:group, challenge: challenge, creator: admin) }
+  let(:challenge_template) { create(:challenge_template, creator: admin) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: admin) }
   let!(:admin_membership) { create(:membership, group: group, user: admin, role: "admin") }
   let!(:member_membership) { create(:membership, group: group, user: user, role: "member") }
 

@@ -5,7 +5,7 @@ require "swagger_helper"
 RSpec.describe("Groups API", type: :request) do
   let(:user) { create(:user) }
   let(:Authorization) { "Bearer #{Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first}" }
-  let(:challenge) { create(:challenge, creator: user) }
+  let(:challenge_template) { create(:challenge_template, creator: user) }
 
   path "/api/v1/groups" do
     get "List groups" do
@@ -15,7 +15,7 @@ RSpec.describe("Groups API", type: :request) do
       parameter name: :Authorization, in: :header, type: :string, required: true, description: "Bearer JWT"
 
       response "200", "success" do
-        let!(:group) { create(:group, challenge: challenge, creator: user) }
+        let!(:group) { create(:group, challenge_template: challenge_template, creator: user) }
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -52,23 +52,23 @@ RSpec.describe("Groups API", type: :request) do
       }
 
       response "201", "created" do
-        let(:group) { { group: { challenge_id: challenge.id, privacy_type: "public" } } }
+        let(:group) { { group: { challenge_template_id: challenge_template.id, privacy_type: "public" } } }
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data["challenge_id"]).to(eq(challenge.id))
+          expect(data["challenge_template_id"]).to(eq(challenge_template.id))
           expect(data["creator_id"]).to(eq(user.id))
         end
       end
 
       response "404", "challenge not found" do
-        let(:group) { { group: { challenge_id: 999999 } } }
+        let(:group) { { group: { challenge_template_id: 999999 } } }
         run_test!
       end
 
       response "401", "unauthorized" do
         let(:Authorization) { nil }
-        let(:group) { { group: { challenge_id: challenge.id } } }
+        let(:group) { { group: { challenge_template_id: challenge_template.id } } }
         run_test!
       end
     end
@@ -84,7 +84,7 @@ RSpec.describe("Groups API", type: :request) do
       parameter name: :Authorization, in: :header, type: :string, required: true, description: "Bearer JWT"
 
       response "200", "success" do
-        let(:existing_group) { create(:group, challenge: challenge, creator: user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: user) }
         let(:id) { existing_group.id }
 
         run_test! do |response|
@@ -100,7 +100,7 @@ RSpec.describe("Groups API", type: :request) do
 
       response "403", "forbidden (private group)" do
         let(:other_user) { create(:user) }
-        let(:private_group) { create(:group, challenge: challenge, creator: other_user, privacy_type: "private") }
+        let(:private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
         let(:id) { private_group.id }
         run_test!
       end
@@ -126,7 +126,7 @@ RSpec.describe("Groups API", type: :request) do
       }
 
       response "200", "success" do
-        let(:existing_group) { create(:group, challenge: challenge, creator: user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: user) }
         let(:id) { existing_group.id }
         let(:group_params) { { group: { privacy_type: "private" } } }
 
@@ -138,7 +138,7 @@ RSpec.describe("Groups API", type: :request) do
 
       response "403", "forbidden (not owner)" do
         let(:other_user) { create(:user) }
-        let(:existing_group) { create(:group, challenge: challenge, creator: other_user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: other_user) }
         let(:id) { existing_group.id }
         let(:group_params) { { group: { privacy_type: "private" } } }
         run_test!
@@ -151,14 +151,14 @@ RSpec.describe("Groups API", type: :request) do
       parameter name: :Authorization, in: :header, type: :string, required: true, description: "Bearer JWT"
 
       response "204", "no content" do
-        let(:existing_group) { create(:group, challenge: challenge, creator: user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: user) }
         let(:id) { existing_group.id }
         run_test!
       end
 
       response "403", "forbidden (not owner)" do
         let(:other_user) { create(:user) }
-        let(:existing_group) { create(:group, challenge: challenge, creator: other_user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: other_user) }
         let(:id) { existing_group.id }
         run_test!
       end
@@ -183,7 +183,7 @@ RSpec.describe("Groups API", type: :request) do
 
       response "201", "joined successfully" do
         let(:other_user) { create(:user) }
-        let(:existing_group) { create(:group, challenge: challenge, creator: other_user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: other_user) }
         let(:id) { existing_group.id }
         let(:join_params) { {} }
 
@@ -197,7 +197,7 @@ RSpec.describe("Groups API", type: :request) do
       response "403", "invalid invite code" do
         let(:other_user) { create(:user) }
         let(:private_group) do
-          create(:group, challenge: challenge, creator: other_user, privacy_type: "private", invite_code: "ABC123")
+          create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private", invite_code: "ABC123")
         end
         let(:id) { private_group.id }
         let(:join_params) { { invite_code: "WRONG" } }
@@ -206,7 +206,7 @@ RSpec.describe("Groups API", type: :request) do
 
       response "422", "already a member" do
         let(:other_user) { create(:user) }
-        let(:existing_group) { create(:group, challenge: challenge, creator: other_user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: other_user) }
         let!(:membership) { create(:membership, group: existing_group, user: user) }
         let(:id) { existing_group.id }
         let(:join_params) { {} }
@@ -225,14 +225,14 @@ RSpec.describe("Groups API", type: :request) do
 
       response "204", "left successfully" do
         let(:other_user) { create(:user) }
-        let(:existing_group) { create(:group, challenge: challenge, creator: other_user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: other_user) }
         let!(:membership) { create(:membership, group: existing_group, user: user) }
         let(:id) { existing_group.id }
         run_test!
       end
 
       response "403", "forbidden (creator cannot leave)" do
-        let(:existing_group) { create(:group, challenge: challenge, creator: user) }
+        let(:existing_group) { create(:group, challenge_template: challenge_template, creator: user) }
         let!(:membership) { create(:membership, group: existing_group, user: user, role: "admin") }
         let(:id) { existing_group.id }
         run_test!

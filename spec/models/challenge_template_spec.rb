@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe(Challenge, type: :model) do
+RSpec.describe(ChallengeTemplate, type: :model) do
   let(:creator) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
-  let(:challenge_without_title) { build(:challenge, title: nil, creator: creator) }
-  let(:challenge_without_creator) { build(:challenge, title: "Test", creator: nil) }
-  let(:step) { create(:challenge_step, challenge: challenge, creator: creator) }
-  let(:group) { create(:group, challenge: challenge, creator: creator) }
+  let(:challenge) { create(:challenge_template, creator: creator) }
+  let(:challenge_without_title) { build(:challenge_template, title: nil, creator: creator) }
+  let(:challenge_without_creator) { build(:challenge_template, title: "Test", creator: nil) }
+  let(:step) { create(:challenge_step_template, challenge_template: challenge, creator: creator) }
+  let(:group) { create(:group, challenge_template: challenge, creator: creator) }
 
   describe "validations" do
     it "validates presence of title" do
@@ -27,8 +27,8 @@ RSpec.describe(Challenge, type: :model) do
       expect(challenge.creator).to(eq(creator))
     end
 
-    it "has many challenge_steps" do
-      expect(challenge.challenge_steps).to(include(step))
+    it "has many challenge_step_templates" do
+      expect(challenge.challenge_step_templates).to(include(step))
     end
 
     it "has many groups" do
@@ -57,7 +57,7 @@ RSpec.describe(Challenge, type: :model) do
       expect(described_class.discarded).to(include(challenge))
     end
 
-    it "discards associated challenge_steps and groups when discarded" do
+    it "discards associated challenge_step_templates and groups when discarded" do
       step
       group
       challenge.discard

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ChallengeStepPolicy < ApplicationPolicy
+class ChallengeStepTemplatePolicy < ApplicationPolicy
   def index?
     challenge_visible?
   end
@@ -24,7 +24,7 @@ class ChallengeStepPolicy < ApplicationPolicy
   private
 
   def challenge
-    record.challenge
+    record.challenge_template
   end
 
   def challenge_owner?

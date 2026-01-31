@@ -6,8 +6,8 @@ RSpec.describe("POST /api/v1/groups/:group_id/memberships", type: :request) do
   let(:admin) { create(:user, username: "admin_user") }
   let(:member) { create(:user, username: "regular_member") }
   let(:target_user) { create(:user, username: "target_user", email: "target@example.com") }
-  let(:challenge) { create(:challenge, creator: admin) }
-  let(:group) { create(:group, challenge: challenge, creator: admin) }
+  let(:challenge_template) { create(:challenge_template, creator: admin) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: admin) }
   let!(:admin_membership) { create(:membership, group: group, user: admin, role: "admin") }
 
   subject(:do_request) do

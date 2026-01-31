@@ -23,7 +23,7 @@ RSpec.describe("DELETE /api/v1/challenges/:id", type: :request) do
     end
 
     it "does not permanently delete the challenge" do
-      expect { do_request }.not_to(change(Challenge.unscoped, :count))
+      expect { do_request }.not_to(change(ChallengeTemplate.unscoped, :count))
     end
   end
 

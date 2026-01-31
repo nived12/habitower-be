@@ -6,10 +6,10 @@ RSpec.describe("GET /api/v1/challenges/:id", type: :request) do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
 
-  subject(:do_request) { get "/api/v1/challenges/#{challenge.id}", headers: auth_headers(user) }
+  subject(:do_request) { get "/api/v1/challenges/#{challenge_template.id}", headers: auth_headers(user) }
 
   context "with a public challenge" do
-    let(:challenge) { create(:challenge, creator: other_user) }
+    let(:challenge_template) { create(:challenge_template, creator: other_user) }
 
     before { do_request }
 
@@ -18,16 +18,16 @@ RSpec.describe("GET /api/v1/challenges/:id", type: :request) do
     end
 
     it "returns the challenge attributes" do
-      expect(parsed_body["id"]).to(eq(challenge.id))
-      expect(parsed_body["title"]).to(eq(challenge.title))
-      expect(parsed_body["description"]).to(eq(challenge.description))
-      expect(parsed_body["period_type"]).to(eq(challenge.period_type))
-      expect(parsed_body["privacy_type"]).to(eq(challenge.privacy_type))
+      expect(parsed_body["id"]).to(eq(challenge_template.id))
+      expect(parsed_body["title"]).to(eq(challenge_template.title))
+      expect(parsed_body["description"]).to(eq(challenge_template.description))
+      expect(parsed_body["period_type"]).to(eq(challenge_template.period_type))
+      expect(parsed_body["privacy_type"]).to(eq(challenge_template.privacy_type))
     end
   end
 
   context "with a private challenge" do
-    let(:challenge) { create(:challenge, :private, creator: other_user) }
+    let(:challenge_template) { create(:challenge_template, :private, creator: other_user) }
 
     context "when user is not the creator or member" do
       before { do_request }
@@ -38,7 +38,7 @@ RSpec.describe("GET /api/v1/challenges/:id", type: :request) do
     end
 
     context "when user is the creator" do
-      let(:challenge) { create(:challenge, :private, creator: user) }
+      let(:challenge_template) { create(:challenge_template, :private, creator: user) }
 
       before { do_request }
 
@@ -48,7 +48,7 @@ RSpec.describe("GET /api/v1/challenges/:id", type: :request) do
     end
 
     context "when user is a member of a group using the challenge" do
-      let(:group) { create(:group, challenge: challenge, creator: other_user) }
+      let(:group) { create(:group, challenge_template: challenge_template, creator: other_user) }
       let!(:membership) { create(:membership, group: group, user: user) }
 
       before { do_request }
@@ -70,9 +70,9 @@ RSpec.describe("GET /api/v1/challenges/:id", type: :request) do
   end
 
   context "when not authenticated" do
-    let(:challenge) { create(:challenge, creator: other_user) }
+    let(:challenge_template) { create(:challenge_template, creator: other_user) }
 
-    subject(:do_request) { get "/api/v1/challenges/#{challenge.id}", headers: json_headers }
+    subject(:do_request) { get "/api/v1/challenges/#{challenge_template.id}", headers: json_headers }
 
     before { do_request }
 

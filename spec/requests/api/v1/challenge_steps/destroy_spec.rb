@@ -6,7 +6,7 @@ RSpec.describe("DELETE /api/v1/challenges/:challenge_id/challenge_steps/:id", ty
   let(:creator) { create(:user) }
   let(:other_user) { create(:user) }
   let(:challenge) { create(:challenge, creator: creator) }
-  let!(:challenge_step) { create(:challenge_step, challenge: challenge, creator: creator) }
+  let!(:challenge_step) { create(:challenge_step, challenge_template: challenge, creator: creator) }
 
   subject(:do_request) do
     delete "/api/v1/challenges/#{challenge.id}/challenge_steps/#{challenge_step.id}",
@@ -26,7 +26,7 @@ RSpec.describe("DELETE /api/v1/challenges/:challenge_id/challenge_steps/:id", ty
     end
 
     it "does not permanently delete the challenge step" do
-      expect { do_request }.not_to(change(ChallengeStep.unscoped, :count))
+      expect { do_request }.not_to(change(ChallengeStepTemplate.unscoped, :count))
     end
   end
 

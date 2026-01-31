@@ -5,14 +5,14 @@ require "rails_helper"
 RSpec.describe("GET /api/v1/groups", type: :request) do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: other_user) }
+  let(:challenge_template) { create(:challenge_template, creator: other_user) }
 
   subject(:do_request) { get "/api/v1/groups", headers: auth_headers(user) }
 
   context "when authenticated" do
-    let!(:public_group) { create(:group, challenge: challenge, creator: other_user) }
-    let!(:private_group) { create(:group, challenge: challenge, creator: other_user, privacy_type: "private") }
-    let!(:own_private_group) { create(:group, challenge: challenge, creator: user, privacy_type: "private") }
+    let!(:public_group) { create(:group, challenge_template: challenge_template, creator: other_user) }
+    let!(:private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
+    let!(:own_private_group) { create(:group, challenge_template: challenge_template, creator: user, privacy_type: "private") }
 
     before { do_request }
 
@@ -34,7 +34,7 @@ RSpec.describe("GET /api/v1/groups", type: :request) do
   end
 
   context "when user is member of a private group" do
-    let!(:private_group) { create(:group, challenge: challenge, creator: other_user, privacy_type: "private") }
+    let!(:private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
     let!(:membership) { create(:membership, group: private_group, user: user) }
 
     before { do_request }

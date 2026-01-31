@@ -34,7 +34,7 @@ RSpec.describe("GET /api/v1/challenges", type: :request) do
 
   context "when user is member of a group with a private challenge" do
     let!(:private_challenge) { create(:challenge, :private, creator: other_user) }
-    let(:group) { create(:group, challenge: private_challenge, creator: other_user) }
+    let(:group) { create(:group, challenge_template: private_challenge, creator: other_user) }
     let!(:membership) { create(:membership, group: group, user: user) }
 
     before { do_request }

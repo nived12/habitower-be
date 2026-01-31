@@ -8,12 +8,13 @@ class Group < ApplicationRecord
 
   enum :privacy_type, { public: "public", private: "private" }, default: :public, validate: true, prefix: true
 
-  belongs_to :challenge
+  belongs_to :challenge_template, class_name: "ChallengeTemplate"
   belongs_to :creator, class_name: "User"
+  has_many :group_steps, dependent: :destroy
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
 
-  after_discard { memberships.discard_all }
+  after_discard { group_steps.discard_all; memberships.discard_all }
 
   scope :publicly_joinable, -> { where(privacy_type: "public") }
 
@@ -27,7 +28,7 @@ class Group < ApplicationRecord
   def current_period
     return 0 if start_date > Date.current
 
-    if challenge.weekly?
+    if challenge_template.weekly?
       current_week
     else
       months_elapsed = ((Date.current.year * 12 + Date.current.month) -
@@ -42,7 +43,7 @@ end
 # Table name: groups
 #
 #  id                   :integer            not null, primary key
-#  challenge_id         :integer            not null
+#  challenge_template_id :integer            not null
 #  creator_id           :integer            not null
 #  start_date           :date               not null
 #  privacy_type         :string             not null, default("public")
@@ -50,10 +51,12 @@ end
 #  created_at           :timestamp(6) without time zone not null
 #  updated_at           :timestamp(6) without time zone not null
 #  discarded_at         :timestamp(6) without time zone null
+#  rules                :jsonb              not null, default("{}")
+#  integrity_score      :numeric(5,2)       not null, default("100.0")
 #
 # Indexes
 #
-#  index_groups_on_challenge_id (challenge_id)
+#  index_groups_on_challenge_template_id (challenge_template_id)
 #  index_groups_on_creator_id (creator_id)
 #  index_groups_on_discarded_at (discarded_at)
 #  index_groups_on_invite_code (invite_code)

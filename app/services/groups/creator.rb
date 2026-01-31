@@ -4,11 +4,11 @@ module Groups
   class Creator < ApplicationService
     INVITE_CODE_LENGTH = 6
 
-    attr_reader :challenge, :creator, :privacy_type, :start_date
+    attr_reader :challenge_template, :creator, :privacy_type, :start_date
 
-    def initialize(challenge:, creator:, privacy_type: "public", start_date: nil)
+    def initialize(challenge_template:, creator:, privacy_type: "public", start_date: nil)
       super()
-      @challenge = challenge
+      @challenge_template = challenge_template
       @creator = creator
       @privacy_type = privacy_type
       @start_date = start_date
@@ -21,6 +21,7 @@ module Groups
       ActiveRecord::Base.transaction do
         group.save!
         group.memberships.create!(user: creator, role: "admin")
+        Groups::StepCopier.call(group: group)
       end
       success(group)
     rescue ActiveRecord::RecordInvalid => e
@@ -31,7 +32,7 @@ module Groups
 
     def build_group
       Group.new(
-        challenge: challenge,
+        challenge_template: challenge_template,
         creator: creator,
         privacy_type: privacy_type,
         start_date: calculated_start_date,
@@ -42,7 +43,7 @@ module Groups
     def calculated_start_date
       return start_date if start_date.present?
 
-      if challenge.weekly?
+      if challenge_template.weekly?
         next_monday
       else
         next_month_start

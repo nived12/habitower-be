@@ -15,9 +15,11 @@ class User < ApplicationRecord
     length: { minimum: 3, maximum: 30 },
     allow_blank: true
 
-  has_many :created_challenges, class_name: "Challenge", foreign_key: :creator_id, dependent: :nullify
+  has_many :created_challenge_templates, class_name: "ChallengeTemplate", foreign_key: :creator_id, dependent: :nullify
   has_many :memberships, dependent: :destroy
   has_many :groups, through: :memberships
+  has_many :refresh_tokens, dependent: :destroy
+  has_many :devices, dependent: :destroy
 
   scope :by_email_or_username, ->(identifier) {
     where("LOWER(email) = LOWER(?) OR LOWER(username) = LOWER(?)", identifier, identifier)

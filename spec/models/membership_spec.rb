@@ -5,11 +5,11 @@ require "rails_helper"
 RSpec.describe(Membership, type: :model) do
   let(:user) { create(:user) }
   let(:creator) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
-  let(:group) { create(:group, challenge: challenge, creator: creator) }
+  let(:challenge_template) { create(:challenge_template, creator: creator) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
   let(:membership) { create(:membership, user: user, group: group) }
-  let(:challenge_step) { create(:challenge_step, challenge: challenge, creator: creator) }
-  let(:log) { create(:progress_log, membership: membership, challenge_step: challenge_step) }
+  let(:group_step) { create(:group_step, group: group, creator: creator) }
+  let(:log) { create(:progress_log, membership: membership, group_step: group_step) }
 
   describe "validations" do
     it "validates uniqueness of user_id scoped to group_id" do

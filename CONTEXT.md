@@ -1,5 +1,6 @@
-# Project: Habitower (Backend API)
-**Purpose:** Mobile-first multiplayer habit stacking. Users join Groups (Public/Private) based on Challenge templates.
+# CONTEXT.md: Habitower Backend
+
+**Purpose:** Implementation guide — how to write and structure code. For product overview, data model, and roadmap, see **README.md**.
 
 ## Tech Stack
 Rails 8.x (API Mode), PostgreSQL, RSpec, Devise + JWT, Discard, Factory Bot.

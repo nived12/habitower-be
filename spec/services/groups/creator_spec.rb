@@ -4,15 +4,15 @@ require "rails_helper"
 
 RSpec.describe(Groups::Creator) do
   let(:user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: user) }
+  let(:challenge_template) { create(:challenge_template, creator: user) }
 
   describe "#call" do
     context "with a weekly challenge" do
-      let(:challenge) { create(:challenge, creator: user, period_type: "weekly") }
+      let(:challenge_template) { create(:challenge_template, creator: user, period_type: "weekly") }
 
       context "when no start_date is provided" do
         subject(:result) do
-          described_class.call(challenge: challenge, creator: user)
+          described_class.call(challenge_template: challenge_template, creator: user)
         end
 
         it "creates a group" do
@@ -24,8 +24,8 @@ RSpec.describe(Groups::Creator) do
           expect(result.payload).to(be_a(Group))
         end
 
-        it "sets the challenge" do
-          expect(result.payload.challenge).to(eq(challenge))
+        it "sets the challenge_template" do
+          expect(result.payload.challenge_template).to(eq(challenge_template))
         end
 
         it "sets the creator" do
@@ -52,6 +52,13 @@ RSpec.describe(Groups::Creator) do
           expect(membership).to(be_present)
           expect(membership.role).to(eq("admin"))
         end
+
+        it "copies template steps to group_steps" do
+          create(:challenge_step_template, challenge_template: challenge_template, position: 1, creator: user)
+          create(:challenge_step_template, challenge_template: challenge_template, position: 2, creator: user)
+          result = described_class.call(challenge_template: challenge_template, creator: user)
+          expect(result.payload.group_steps.count).to(eq(2))
+        end
       end
 
       context "when today is Monday" do
@@ -60,7 +67,7 @@ RSpec.describe(Groups::Creator) do
         end
 
         it "sets start_date to today" do
-          result = described_class.call(challenge: challenge, creator: user)
+          result = described_class.call(challenge_template: challenge_template, creator: user)
           expect(result.payload.start_date).to(eq(Date.new(2026, 2, 2)))
         end
       end
@@ -71,14 +78,14 @@ RSpec.describe(Groups::Creator) do
         end
 
         it "sets start_date to next Monday" do
-          result = described_class.call(challenge: challenge, creator: user)
+          result = described_class.call(challenge_template: challenge_template, creator: user)
           expect(result.payload.start_date).to(eq(Date.new(2026, 2, 9)))
         end
       end
     end
 
     context "with a monthly challenge" do
-      let(:challenge) { create(:challenge, creator: user, period_type: "monthly") }
+      let(:challenge_template) { create(:challenge_template, creator: user, period_type: "monthly") }
 
       context "when today is the 1st" do
         before do
@@ -86,7 +93,7 @@ RSpec.describe(Groups::Creator) do
         end
 
         it "sets start_date to today" do
-          result = described_class.call(challenge: challenge, creator: user)
+          result = described_class.call(challenge_template: challenge_template, creator: user)
           expect(result.payload.start_date).to(eq(Date.new(2026, 2, 1)))
         end
       end
@@ -97,7 +104,7 @@ RSpec.describe(Groups::Creator) do
         end
 
         it "sets start_date to the 1st of next month" do
-          result = described_class.call(challenge: challenge, creator: user)
+          result = described_class.call(challenge_template: challenge_template, creator: user)
           expect(result.payload.start_date).to(eq(Date.new(2026, 3, 1)))
         end
       end
@@ -108,7 +115,7 @@ RSpec.describe(Groups::Creator) do
 
       it "uses the provided start_date" do
         result = described_class.call(
-          challenge: challenge,
+          challenge_template: challenge_template,
           creator: user,
           start_date: custom_date,
         )
@@ -120,7 +127,7 @@ RSpec.describe(Groups::Creator) do
     context "with private privacy_type" do
       subject(:result) do
         described_class.call(
-          challenge: challenge,
+          challenge_template: challenge_template,
           creator: user,
           privacy_type: "private",
         )
@@ -142,7 +149,7 @@ RSpec.describe(Groups::Creator) do
       it "generates unique invite_codes" do
         codes = 10.times.map do
           described_class.call(
-            challenge: challenge,
+            challenge_template: challenge_template,
             creator: user,
             privacy_type: "private",
           ).payload.invite_code
@@ -159,7 +166,7 @@ RSpec.describe(Groups::Creator) do
 
       it "rolls back group creation if membership fails" do
         expect {
-          described_class.call(challenge: challenge, creator: user)
+          described_class.call(challenge_template: challenge_template, creator: user)
         }.not_to(change(Group, :count))
       end
     end

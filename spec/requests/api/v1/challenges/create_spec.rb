@@ -27,7 +27,7 @@ RSpec.describe("POST /api/v1/challenges", type: :request) do
     end
 
     it "creates a new challenge" do
-      expect { do_request }.to(change(Challenge, :count).by(1))
+      expect { do_request }.to(change(ChallengeTemplate, :count).by(1))
     end
 
     it "sets the current user as creator" do

@@ -12,8 +12,8 @@ RSpec.describe("GET /api/v1/challenges/:challenge_id/challenge_steps", type: :re
   end
 
   context "when challenge is public" do
-    let!(:step1) { create(:challenge_step, challenge: challenge, position: 1, creator: creator) }
-    let!(:step2) { create(:challenge_step, challenge: challenge, position: 2, creator: creator) }
+    let!(:step1) { create(:challenge_step, challenge_template: challenge, position: 1, creator: creator) }
+    let!(:step2) { create(:challenge_step, challenge_template: challenge, position: 2, creator: creator) }
 
     before { do_request }
 
@@ -30,7 +30,7 @@ RSpec.describe("GET /api/v1/challenges/:challenge_id/challenge_steps", type: :re
 
   context "when challenge is private" do
     let(:challenge) { create(:challenge, :private, creator: creator) }
-    let!(:step) { create(:challenge_step, challenge: challenge, creator: creator) }
+    let!(:step) { create(:challenge_step, challenge_template: challenge, creator: creator) }
 
     context "when user is not authorized" do
       before { do_request }
@@ -51,7 +51,7 @@ RSpec.describe("GET /api/v1/challenges/:challenge_id/challenge_steps", type: :re
     end
 
     context "when user is a member of a group using the challenge" do
-      let(:group) { create(:group, challenge: challenge, creator: creator) }
+      let(:group) { create(:group, challenge_template: challenge, creator: creator) }
       let!(:membership) { create(:membership, group: group, user: user) }
 
       before { do_request }

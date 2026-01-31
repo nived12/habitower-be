@@ -8,7 +8,7 @@ module Api
       def index
         authorize(Group)
 
-        @groups = policy_scope(Group.kept).includes(:challenge, :creator)
+        @groups = policy_scope(Group.kept).includes(:challenge_template, :creator)
       end
 
       def show
@@ -16,10 +16,10 @@ module Api
       end
 
       def create
-        challenge = Challenge.kept.find(params.dig(:group, :challenge_id))
+        challenge_template = ChallengeTemplate.kept.find(params.dig(:group, :challenge_template_id))
 
         result = Groups::Creator.call(
-          challenge: challenge,
+          challenge_template: challenge_template,
           creator: current_user,
           privacy_type: group_params[:privacy_type] || "public",
           start_date: group_params[:start_date],
@@ -38,7 +38,7 @@ module Api
       def update
         authorize(@group)
 
-        @group.update!(group_params.except(:challenge_id))
+        @group.update!(group_params.except(:challenge_template_id))
         render(:show, status: :ok)
       end
 
@@ -84,7 +84,7 @@ module Api
       end
 
       def group_params
-        params.require(:group).permit(:challenge_id, :privacy_type, :start_date)
+        params.require(:group).permit(:challenge_template_id, :privacy_type, :start_date)
       end
     end
   end

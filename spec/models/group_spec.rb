@@ -4,33 +4,33 @@ require "rails_helper"
 
 RSpec.describe(Group, type: :model) do
   let(:creator) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
-  let(:group) { create(:group, challenge: challenge, creator: creator) }
+  let(:challenge_template) { create(:challenge_template, creator: creator) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
   let(:membership) { create(:membership, user: creator, group: group) }
 
   describe "validations" do
     it "validates presence of start_date" do
-      invalid = build(:group, challenge: challenge, creator: creator, start_date: nil)
+      invalid = build(:group, challenge_template: challenge_template, creator: creator, start_date: nil)
       expect(invalid).not_to(be_valid)
       expect(invalid.errors[:start_date]).to(include("can't be blank"))
     end
 
-    it "validates presence of challenge" do
-      invalid = build(:group, challenge: nil, creator: creator)
+    it "validates presence of challenge_template" do
+      invalid = build(:group, challenge_template: nil, creator: creator)
       expect(invalid).not_to(be_valid)
-      expect(invalid.errors[:challenge]).to(include("must exist"))
+      expect(invalid.errors[:challenge_template]).to(include("must exist"))
     end
 
     it "validates presence of creator" do
-      invalid = build(:group, challenge: challenge, creator: nil)
+      invalid = build(:group, challenge_template: challenge_template, creator: nil)
       expect(invalid).not_to(be_valid)
       expect(invalid.errors[:creator]).to(include("must exist"))
     end
   end
 
   describe "associations" do
-    it "belongs to challenge" do
-      expect(group.challenge).to(eq(challenge))
+    it "belongs to challenge_template" do
+      expect(group.challenge_template).to(eq(challenge_template))
     end
 
     it "belongs to creator" do

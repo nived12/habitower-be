@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe("POST /api/v1/groups", type: :request) do
   let(:user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: user) }
+  let(:challenge_template) { create(:challenge_template, creator: user) }
 
   subject(:do_request) do
     post "/api/v1/groups", params: request_params.to_json, headers: auth_headers(user)
@@ -14,7 +14,7 @@ RSpec.describe("POST /api/v1/groups", type: :request) do
     let(:request_params) do
       {
         group: {
-          challenge_id: challenge.id,
+          challenge_template_id: challenge_template.id,
           privacy_type: "public"
         }
       }
@@ -40,7 +40,7 @@ RSpec.describe("POST /api/v1/groups", type: :request) do
 
     it "returns the group attributes" do
       do_request
-      expect(parsed_body["challenge_id"]).to(eq(challenge.id))
+      expect(parsed_body["challenge_template_id"]).to(eq(challenge_template.id))
       expect(parsed_body["creator_id"]).to(eq(user.id))
       expect(parsed_body["privacy_type"]).to(eq("public"))
     end
@@ -55,7 +55,7 @@ RSpec.describe("POST /api/v1/groups", type: :request) do
     let(:request_params) do
       {
         group: {
-          challenge_id: challenge.id,
+          challenge_template_id: challenge_template.id,
           privacy_type: "private"
         }
       }
@@ -78,7 +78,7 @@ RSpec.describe("POST /api/v1/groups", type: :request) do
     let(:request_params) do
       {
         group: {
-          challenge_id: challenge.id,
+          challenge_template_id: challenge_template.id,
           start_date: custom_date
         }
       }
@@ -90,11 +90,11 @@ RSpec.describe("POST /api/v1/groups", type: :request) do
     end
   end
 
-  context "with invalid challenge_id" do
+  context "with invalid challenge_template_id" do
     let(:request_params) do
       {
         group: {
-          challenge_id: 999999
+          challenge_template_id: 999999
         }
       }
     end
@@ -107,7 +107,7 @@ RSpec.describe("POST /api/v1/groups", type: :request) do
   end
 
   context "when not authenticated" do
-    let(:request_params) { { group: { challenge_id: challenge.id } } }
+    let(:request_params) { { group: { challenge_template_id: challenge_template.id } } }
 
     subject(:do_request) do
       post "/api/v1/groups", params: request_params.to_json, headers: json_headers

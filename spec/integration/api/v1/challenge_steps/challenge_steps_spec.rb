@@ -18,7 +18,7 @@ RSpec.describe("Challenge Steps API", type: :request) do
       parameter name: :Authorization, in: :header, type: :string, required: true, description: "Bearer JWT"
 
       response "200", "success" do
-        let!(:step) { create(:challenge_step, challenge: challenge, creator: user) }
+        let!(:step) { create(:challenge_step, challenge_template: challenge, creator: user) }
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -61,7 +61,7 @@ RSpec.describe("Challenge Steps API", type: :request) do
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data["title"]).to(eq("Step 1"))
-          expect(data["challenge_id"]).to(eq(challenge.id))
+          expect(data["challenge_template_id"]).to(eq(challenge.id))
         end
       end
 
@@ -90,7 +90,7 @@ RSpec.describe("Challenge Steps API", type: :request) do
       parameter name: :Authorization, in: :header, type: :string, required: true, description: "Bearer JWT"
 
       response "200", "success" do
-        let(:step) { create(:challenge_step, challenge: challenge, creator: user) }
+        let(:step) { create(:challenge_step, challenge_template: challenge, creator: user) }
         let(:id) { step.id }
 
         run_test! do |response|
@@ -127,7 +127,7 @@ RSpec.describe("Challenge Steps API", type: :request) do
       }
 
       response "200", "success" do
-        let(:step) { create(:challenge_step, challenge: challenge, creator: user) }
+        let(:step) { create(:challenge_step, challenge_template: challenge, creator: user) }
         let(:id) { step.id }
         let(:challenge_step_params) { { challenge_step: { title: "Updated" } } }
 
@@ -140,7 +140,7 @@ RSpec.describe("Challenge Steps API", type: :request) do
       response "403", "forbidden (not owner)" do
         let(:other_user) { create(:user) }
         let(:challenge) { create(:challenge, creator: other_user) }
-        let(:step) { create(:challenge_step, challenge: challenge, creator: other_user) }
+        let(:step) { create(:challenge_step, challenge_template: challenge, creator: other_user) }
         let(:id) { step.id }
         let(:challenge_step_params) { { challenge_step: { title: "Hacked" } } }
         run_test!
@@ -153,7 +153,7 @@ RSpec.describe("Challenge Steps API", type: :request) do
       parameter name: :Authorization, in: :header, type: :string, required: true, description: "Bearer JWT"
 
       response "204", "no content" do
-        let(:step) { create(:challenge_step, challenge: challenge, creator: user) }
+        let(:step) { create(:challenge_step, challenge_template: challenge, creator: user) }
         let(:id) { step.id }
         run_test!
       end
@@ -161,7 +161,7 @@ RSpec.describe("Challenge Steps API", type: :request) do
       response "403", "forbidden (not owner)" do
         let(:other_user) { create(:user) }
         let(:challenge) { create(:challenge, creator: other_user) }
-        let(:step) { create(:challenge_step, challenge: challenge, creator: other_user) }
+        let(:step) { create(:challenge_step, challenge_template: challenge, creator: other_user) }
         let(:id) { step.id }
         run_test!
       end

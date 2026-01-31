@@ -5,14 +5,14 @@ require "rails_helper"
 RSpec.describe("POST /api/v1/groups/:id/join", type: :request) do
   let(:user) { create(:user) }
   let(:creator) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
+  let(:challenge_template) { create(:challenge_template, creator: creator) }
 
   subject(:do_request) do
     post "/api/v1/groups/#{group.id}/join", params: request_params.to_json, headers: auth_headers(user)
   end
 
   context "with a public group" do
-    let(:group) { create(:group, challenge: challenge, creator: creator) }
+    let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
     let(:request_params) { {} }
 
     it "returns 201 Created" do
@@ -34,7 +34,7 @@ RSpec.describe("POST /api/v1/groups/:id/join", type: :request) do
 
   context "with a private group" do
     let(:group) do
-      create(:group, challenge: challenge, creator: creator, privacy_type: "private", invite_code: "ABC123")
+      create(:group, challenge_template: challenge_template, creator: creator, privacy_type: "private", invite_code: "ABC123")
     end
 
     context "with valid invite_code" do
@@ -76,7 +76,7 @@ RSpec.describe("POST /api/v1/groups/:id/join", type: :request) do
   end
 
   context "when user is already a member" do
-    let(:group) { create(:group, challenge: challenge, creator: creator) }
+    let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
     let!(:membership) { create(:membership, group: group, user: user) }
     let(:request_params) { {} }
 
@@ -106,7 +106,7 @@ RSpec.describe("POST /api/v1/groups/:id/join", type: :request) do
   end
 
   context "when not authenticated" do
-    let(:group) { create(:group, challenge: challenge, creator: creator) }
+    let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
     let(:request_params) { {} }
 
     subject(:do_request) do

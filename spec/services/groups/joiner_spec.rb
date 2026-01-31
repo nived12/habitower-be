@@ -5,11 +5,11 @@ require "rails_helper"
 RSpec.describe(Groups::Joiner) do
   let(:creator) { create(:user) }
   let(:user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
+  let(:challenge_template) { create(:challenge_template, creator: creator) }
 
   describe "#call" do
     context "with a public group" do
-      let(:group) { create(:group, challenge: challenge, creator: creator) }
+      let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
 
       context "when user is not a member" do
         subject(:result) { described_class.call(group: group, user: user) }
@@ -61,7 +61,7 @@ RSpec.describe(Groups::Joiner) do
 
     context "with a private group" do
       let(:group) do
-        create(:group, challenge: challenge, creator: creator, privacy_type: "private", invite_code: "ABC123")
+        create(:group, challenge_template: challenge_template, creator: creator, privacy_type: "private", invite_code: "ABC123")
       end
 
       context "with valid invite_code" do

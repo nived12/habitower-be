@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :challenge do
+  factory :challenge, class: "ChallengeTemplate" do
     sequence(:title) { |n| "Challenge #{n}" }
     description { "A challenge" }
     period_type { "weekly" }

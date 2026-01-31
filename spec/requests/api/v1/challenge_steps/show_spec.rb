@@ -6,7 +6,7 @@ RSpec.describe("GET /api/v1/challenges/:challenge_id/challenge_steps/:id", type:
   let(:user) { create(:user) }
   let(:creator) { create(:user) }
   let(:challenge) { create(:challenge, creator: creator) }
-  let(:challenge_step) { create(:challenge_step, challenge: challenge, creator: creator) }
+  let(:challenge_step) { create(:challenge_step, challenge_template: challenge, creator: creator) }
 
   subject(:do_request) do
     get "/api/v1/challenges/#{challenge.id}/challenge_steps/#{challenge_step.id}", headers: auth_headers(user)
@@ -23,7 +23,7 @@ RSpec.describe("GET /api/v1/challenges/:challenge_id/challenge_steps/:id", type:
       expect(parsed_body["id"]).to(eq(challenge_step.id))
       expect(parsed_body["title"]).to(eq(challenge_step.title))
       expect(parsed_body["position"]).to(eq(challenge_step.position))
-      expect(parsed_body["challenge_id"]).to(eq(challenge.id))
+      expect(parsed_body["challenge_template_id"]).to(eq(challenge.id))
     end
   end
 

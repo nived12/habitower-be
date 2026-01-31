@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :progress_log do
     association :membership
-    association :challenge_step
+    association :group_step
     value { 1 }
     occurred_at { Time.current }
   end

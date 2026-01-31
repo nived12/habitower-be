@@ -22,6 +22,8 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
+      post "auth/refresh", to: "auth/refresh#create"
+
       resources :challenges, only: [:index, :show, :create, :update, :destroy] do
         resources :challenge_steps, only: [:index, :show, :create, :update, :destroy]
       end
@@ -33,6 +35,12 @@ Rails.application.routes.draw do
         end
         resources :memberships, only: [:index, :create, :destroy]
       end
+
+      get "memberships/:id/active_stack", to: "memberships#active_stack"
+      get "memberships/:id/integrity", to: "memberships#integrity"
+
+      get "uploads/signed_url", to: "uploads#signed_url"
+      resources :devices, only: [:create]
     end
   end
 end

@@ -5,14 +5,14 @@ require "rails_helper"
 RSpec.describe("PATCH /api/v1/groups/:id", type: :request) do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: user) }
+  let(:challenge_template) { create(:challenge_template, creator: user) }
 
   subject(:do_request) do
     patch "/api/v1/groups/#{group.id}", params: request_params.to_json, headers: auth_headers(user)
   end
 
   context "when user is the creator" do
-    let(:group) { create(:group, challenge: challenge, creator: user, privacy_type: "public") }
+    let(:group) { create(:group, challenge_template: challenge_template, creator: user, privacy_type: "public") }
 
     context "with valid params" do
       let(:request_params) { { group: { privacy_type: "private" } } }
@@ -30,7 +30,7 @@ RSpec.describe("PATCH /api/v1/groups/:id", type: :request) do
   end
 
   context "when user is not the creator" do
-    let(:group) { create(:group, challenge: challenge, creator: other_user) }
+    let(:group) { create(:group, challenge_template: challenge_template, creator: other_user) }
     let(:request_params) { { group: { privacy_type: "private" } } }
 
     before { do_request }
@@ -59,7 +59,7 @@ RSpec.describe("PATCH /api/v1/groups/:id", type: :request) do
   end
 
   context "when not authenticated" do
-    let(:group) { create(:group, challenge: challenge, creator: user) }
+    let(:group) { create(:group, challenge_template: challenge_template, creator: user) }
     let(:request_params) { { group: { privacy_type: "private" } } }
 
     subject(:do_request) do

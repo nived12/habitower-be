@@ -6,8 +6,8 @@ RSpec.describe(GroupPolicy, type: :policy) do
   let(:creator) { create(:user) }
   let(:member_user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: creator) }
-  let(:group) { create(:group, challenge: challenge, creator: creator) }
+  let(:challenge_template) { create(:challenge_template, creator: creator) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
   let!(:membership) { create(:membership, group: group, user: member_user) }
 
   describe "#index?" do
@@ -26,7 +26,7 @@ RSpec.describe(GroupPolicy, type: :policy) do
     end
 
     context "when group is private" do
-      let(:group) { create(:group, challenge: challenge, creator: creator, privacy_type: "private") }
+      let(:group) { create(:group, challenge_template: challenge_template, creator: creator, privacy_type: "private") }
 
       it "permits the creator" do
         policy = described_class.new(creator, group)
@@ -132,9 +132,9 @@ RSpec.describe(GroupPolicy, type: :policy) do
   end
 
   describe "Scope" do
-    let!(:public_group) { create(:group, challenge: challenge, creator: creator) }
-    let!(:private_group) { create(:group, challenge: challenge, creator: creator, privacy_type: "private") }
-    let!(:other_private_group) { create(:group, challenge: challenge, creator: other_user, privacy_type: "private") }
+    let!(:public_group) { create(:group, challenge_template: challenge_template, creator: creator) }
+    let!(:private_group) { create(:group, challenge_template: challenge_template, creator: creator, privacy_type: "private") }
+    let!(:other_private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
 
     it "includes public groups" do
       scope = described_class::Scope.new(other_user, Group.kept).resolve

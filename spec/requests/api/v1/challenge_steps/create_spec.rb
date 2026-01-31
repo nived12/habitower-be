@@ -33,7 +33,7 @@ RSpec.describe("POST /api/v1/challenges/:challenge_id/challenge_steps", type: :r
       end
 
       it "creates a new challenge step" do
-        expect { do_request }.to(change(ChallengeStep, :count).by(1))
+        expect { do_request }.to(change(ChallengeStepTemplate, :count).by(1))
       end
 
       it "sets the current user as creator" do
@@ -46,7 +46,7 @@ RSpec.describe("POST /api/v1/challenges/:challenge_id/challenge_steps", type: :r
         expect(parsed_body["title"]).to(eq("Morning Meditation"))
         expect(parsed_body["position"]).to(eq(1))
         expect(parsed_body["requirements"]).to(eq({ "duration_minutes" => 10 }))
-        expect(parsed_body["challenge_id"]).to(eq(challenge.id))
+        expect(parsed_body["challenge_template_id"]).to(eq(challenge.id))
       end
     end
 
@@ -76,7 +76,7 @@ RSpec.describe("POST /api/v1/challenges/:challenge_id/challenge_steps", type: :r
     end
 
     it "does not create a challenge step" do
-      expect(ChallengeStep.where(title: "Hacked Step")).not_to(exist)
+      expect(ChallengeStepTemplate.where(title: "Hacked Step")).not_to(exist)
     end
   end
 

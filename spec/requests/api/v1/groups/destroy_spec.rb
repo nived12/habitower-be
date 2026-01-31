@@ -5,14 +5,14 @@ require "rails_helper"
 RSpec.describe("DELETE /api/v1/groups/:id", type: :request) do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:challenge) { create(:challenge, creator: user) }
+  let(:challenge_template) { create(:challenge_template, creator: user) }
 
   subject(:do_request) do
     delete "/api/v1/groups/#{group.id}", headers: auth_headers(user)
   end
 
   context "when user is the creator" do
-    let!(:group) { create(:group, challenge: challenge, creator: user) }
+    let!(:group) { create(:group, challenge_template: challenge_template, creator: user) }
 
     it "returns 204 No Content" do
       do_request
@@ -29,7 +29,7 @@ RSpec.describe("DELETE /api/v1/groups/:id", type: :request) do
   end
 
   context "when user is not the creator" do
-    let!(:group) { create(:group, challenge: challenge, creator: other_user) }
+    let!(:group) { create(:group, challenge_template: challenge_template, creator: other_user) }
 
     before { do_request }
 
@@ -55,7 +55,7 @@ RSpec.describe("DELETE /api/v1/groups/:id", type: :request) do
   end
 
   context "when not authenticated" do
-    let!(:group) { create(:group, challenge: challenge, creator: user) }
+    let!(:group) { create(:group, challenge_template: challenge_template, creator: user) }
 
     subject(:do_request) do
       delete "/api/v1/groups/#{group.id}", headers: json_headers

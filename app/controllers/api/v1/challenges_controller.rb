@@ -6,9 +6,9 @@ module Api
       before_action :set_challenge, only: [:show, :update, :destroy]
 
       def index
-        authorize(Challenge)
+        authorize(ChallengeTemplate)
 
-        @challenges = policy_scope(Challenge.kept)
+        @challenges = policy_scope(ChallengeTemplate.kept)
       end
 
       def show
@@ -16,7 +16,7 @@ module Api
       end
 
       def create
-        @challenge = Challenge.new(challenge_params)
+        @challenge = ChallengeTemplate.new(challenge_params)
         @challenge.creator = current_user
 
         authorize(@challenge)
@@ -45,7 +45,7 @@ module Api
       private
 
       def set_challenge
-        @challenge = Challenge.kept.find(params[:id])
+        @challenge = ChallengeTemplate.kept.find(params[:id])
       end
 
       def challenge_params

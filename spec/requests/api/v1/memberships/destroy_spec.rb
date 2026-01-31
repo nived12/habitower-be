@@ -6,8 +6,8 @@ RSpec.describe("DELETE /api/v1/groups/:group_id/memberships/:id", type: :request
   let(:admin) { create(:user) }
   let(:member) { create(:user) }
   let(:other_member) { create(:user) }
-  let(:challenge) { create(:challenge, creator: admin) }
-  let(:group) { create(:group, challenge: challenge, creator: admin) }
+  let(:challenge_template) { create(:challenge_template, creator: admin) }
+  let(:group) { create(:group, challenge_template: challenge_template, creator: admin) }
   let!(:admin_membership) { create(:membership, group: group, user: admin, role: "admin") }
   let!(:member_membership) { create(:membership, group: group, user: member, role: "member") }
 
