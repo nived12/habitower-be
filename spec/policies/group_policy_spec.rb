@@ -133,8 +133,12 @@ RSpec.describe(GroupPolicy, type: :policy) do
 
   describe "Scope" do
     let!(:public_group) { create(:group, challenge_template: challenge_template, creator: creator) }
-    let!(:private_group) { create(:group, challenge_template: challenge_template, creator: creator, privacy_type: "private") }
-    let!(:other_private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
+    let!(:private_group) do
+      create(:group, challenge_template: challenge_template, creator: creator, privacy_type: "private")
+    end
+    let!(:other_private_group) do
+      create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private")
+    end
 
     it "includes public groups" do
       scope = described_class::Scope.new(other_user, Group.kept).resolve

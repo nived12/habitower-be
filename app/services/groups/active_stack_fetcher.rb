@@ -32,7 +32,7 @@ module Groups
           group_step: step,
           completed_today: log.present?,
           today_log_id: log&.id,
-          occurred_at: log&.occurred_at,
+          occurred_at: log&.occurred_at
         }
       end
 

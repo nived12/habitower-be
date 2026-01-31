@@ -23,7 +23,7 @@ module Groups
           requirements: t.requirements,
           original_step_id: t.id,
           created_at: now,
-          updated_at: now,
+          updated_at: now
         }
       end
       GroupStep.insert_all(rows)

@@ -79,7 +79,7 @@ module Api
         group_admin = @membership.group.memberships.kept.exists?(user_id: current_user.id, role: "admin")
         return if current_user.id == membership_user || group_admin
 
-        raise Pundit::NotAuthorizedError
+        raise(Pundit::NotAuthorizedError)
       end
 
       def authorize_admin!

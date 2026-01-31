@@ -33,7 +33,10 @@ RSpec.describe("GET /api/v1/groups/:id", type: :request) do
 
   context "with a private group" do
     let(:group) do
-      create(:group, challenge_template: challenge_template, creator: creator, privacy_type: "private", invite_code: "ABC123")
+      create(
+        :group, challenge_template: challenge_template, creator: creator, privacy_type: "private",
+        invite_code: "ABC123"
+      )
     end
 
     context "when user is not a member" do

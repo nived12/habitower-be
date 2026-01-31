@@ -8,8 +8,12 @@ RSpec.describe(ChallengeStepTemplate, type: :model) do
   let(:group) { create(:group, challenge_template: challenge, creator: creator) }
   let(:group_step) { create(:group_step, group: group, original_step: step, creator: creator) }
   let(:step) { create(:challenge_step_template, challenge_template: challenge, creator: creator) }
-  let(:step_without_title) { build(:challenge_step_template, challenge_template: challenge, title: nil, creator: creator) }
-  let(:step_without_position) { build(:challenge_step_template, challenge_template: challenge, position: nil, creator: creator) }
+  let(:step_without_title) do
+    build(:challenge_step_template, challenge_template: challenge, title: nil, creator: creator)
+  end
+  let(:step_without_position) do
+    build(:challenge_step_template, challenge_template: challenge, position: nil, creator: creator)
+  end
   let(:step_without_challenge) { build(:challenge_step_template, challenge_template: nil, creator: creator) }
   let(:step_without_creator) { build(:challenge_step_template, challenge_template: challenge, creator: nil) }
 

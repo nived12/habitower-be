@@ -11,8 +11,12 @@ RSpec.describe("GET /api/v1/groups", type: :request) do
 
   context "when authenticated" do
     let!(:public_group) { create(:group, challenge_template: challenge_template, creator: other_user) }
-    let!(:private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
-    let!(:own_private_group) { create(:group, challenge_template: challenge_template, creator: user, privacy_type: "private") }
+    let!(:private_group) do
+      create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private")
+    end
+    let!(:own_private_group) do
+      create(:group, challenge_template: challenge_template, creator: user, privacy_type: "private")
+    end
 
     before { do_request }
 
@@ -34,7 +38,9 @@ RSpec.describe("GET /api/v1/groups", type: :request) do
   end
 
   context "when user is member of a private group" do
-    let!(:private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
+    let!(:private_group) do
+      create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private")
+    end
     let!(:membership) { create(:membership, group: private_group, user: user) }
 
     before { do_request }

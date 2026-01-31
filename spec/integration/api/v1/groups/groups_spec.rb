@@ -100,7 +100,9 @@ RSpec.describe("Groups API", type: :request) do
 
       response "403", "forbidden (private group)" do
         let(:other_user) { create(:user) }
-        let(:private_group) { create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private") }
+        let(:private_group) do
+          create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private")
+        end
         let(:id) { private_group.id }
         run_test!
       end
@@ -197,7 +199,10 @@ RSpec.describe("Groups API", type: :request) do
       response "403", "invalid invite code" do
         let(:other_user) { create(:user) }
         let(:private_group) do
-          create(:group, challenge_template: challenge_template, creator: other_user, privacy_type: "private", invite_code: "ABC123")
+          create(
+            :group, challenge_template: challenge_template, creator: other_user, privacy_type: "private",
+            invite_code: "ABC123"
+          )
         end
         let(:id) { private_group.id }
         let(:join_params) { { invite_code: "WRONG" } }

@@ -11,7 +11,7 @@ module Api
         def create
           @user = @refresh_token.user
           sign_in(@user, store: false)
-          render "api/v1/auth/sessions/create", status: :ok
+          render(status: :ok)
         end
 
         private
@@ -19,24 +19,24 @@ module Api
         def validate_refresh_token!
           token = params[:refresh_token].presence
           unless token
-            render(json: { errors: [{ status: "401", source: { pointer: "/data" }, detail: "Refresh token is required" }] }, status: :unauthorized)
+            render_error("401", "Refresh token is required", :unauthorized)
             return
           end
 
           @refresh_token = RefreshToken.find_by(token: token)
           unless @refresh_token
-            render(json: { errors: [{ status: "401", source: { pointer: "/data" }, detail: "Invalid refresh token" }] }, status: :unauthorized)
+            render_error("401", "Invalid refresh token", :unauthorized)
             return
           end
 
           if @refresh_token.revoked_at.present?
-            render(json: { errors: [{ status: "401", source: { pointer: "/data" }, detail: "Refresh token has been revoked" }] }, status: :unauthorized)
+            render_error("401", "Refresh token has been revoked", :unauthorized)
             return
           end
 
           if @refresh_token.expires_at < Time.current
-            render(json: { errors: [{ status: "401", source: { pointer: "/data" }, detail: "Refresh token has expired" }] }, status: :unauthorized)
-            return
+            render_error("401", "Refresh token has expired", :unauthorized)
+            nil
           end
         end
       end
