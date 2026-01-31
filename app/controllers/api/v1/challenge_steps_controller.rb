@@ -8,6 +8,7 @@ module Api
 
       def index
         @challenge_steps = @challenge.challenge_steps.kept.order(:position)
+
         authorize(@challenge_steps.first || @challenge.challenge_steps.build)
       end
 
@@ -18,6 +19,7 @@ module Api
       def create
         @challenge_step = @challenge.challenge_steps.build(challenge_step_params)
         @challenge_step.creator = current_user
+
         authorize(@challenge_step)
 
         @challenge_step.save!
@@ -28,6 +30,7 @@ module Api
         authorize(@challenge_step)
 
         @challenge_step.update!(challenge_step_params)
+
         render(:show, status: :ok)
       end
 
@@ -35,6 +38,7 @@ module Api
         authorize(@challenge_step)
 
         @challenge_step.discard!
+
         head(:no_content)
       end
 

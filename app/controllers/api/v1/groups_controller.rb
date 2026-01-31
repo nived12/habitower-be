@@ -7,6 +7,7 @@ module Api
 
       def index
         authorize(Group)
+
         @groups = policy_scope(Group.kept).includes(:challenge, :creator)
       end
 
@@ -17,13 +18,19 @@ module Api
       def create
         challenge = Challenge.kept.find(params.dig(:group, :challenge_id))
 
-        @group = Groups::Creator.new(
+        result = Groups::Creator.call(
           challenge: challenge,
           creator: current_user,
           privacy_type: group_params[:privacy_type] || "public",
           start_date: group_params[:start_date],
-        ).call
+        )
 
+        if result.failure?
+          render_service_errors(result.errors)
+          return
+        end
+
+        @group = result.payload
         authorize(@group)
         render(:show, status: :created)
       end
@@ -45,17 +52,21 @@ module Api
       def join
         authorize(@group)
 
-        @membership = Groups::Joiner.new(
+        result = Groups::Joiner.call(
           group: @group,
           user: current_user,
           invite_code: params[:invite_code],
-        ).call
+        )
 
+        if result.failure?
+          status_code = result.errors.full_messages.first&.include?("Invalid invite") ? "403" : "422"
+          http_status = status_code == "403" ? :forbidden : :unprocessable_content
+          render_error(status_code, result.errors.full_messages.first, http_status)
+          return
+        end
+
+        @membership = result.payload
         render(:join, status: :created)
-      rescue Groups::Joiner::AlreadyMemberError => e
-        render_error("422", e.message)
-      rescue Groups::Joiner::InvalidInviteCodeError => e
-        render_error("403", e.message, :forbidden)
       end
 
       def leave
@@ -74,17 +85,6 @@ module Api
 
       def group_params
         params.require(:group).permit(:challenge_id, :privacy_type, :start_date)
-      end
-
-      def render_error(status_code, detail, http_status = :unprocessable_entity)
-        render(
-          json: {
-            errors: [
-              { status: status_code, source: { pointer: "/data" }, detail: detail }
-            ]
-          },
-          status: http_status,
-        )
       end
     end
   end

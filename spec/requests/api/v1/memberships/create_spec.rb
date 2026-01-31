@@ -77,7 +77,7 @@ RSpec.describe("POST /api/v1/groups/:group_id/memberships", type: :request) do
       before { do_request }
 
       it "returns 422 Unprocessable Entity" do
-        expect(response).to(have_http_status(:unprocessable_entity))
+        expect(response).to(have_http_status(:unprocessable_content))
       end
 
       it "returns an error message" do

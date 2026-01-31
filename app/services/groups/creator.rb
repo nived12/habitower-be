@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module Groups
-  class Creator
+  class Creator < ApplicationService
     INVITE_CODE_LENGTH = 6
 
     attr_reader :challenge, :creator, :privacy_type, :start_date
 
     def initialize(challenge:, creator:, privacy_type: "public", start_date: nil)
+      super()
       @challenge = challenge
       @creator = creator
       @privacy_type = privacy_type
@@ -14,12 +15,16 @@ module Groups
     end
 
     def call
+      group = build_group
+      return failure(group.errors) unless group.valid?
+
       ActiveRecord::Base.transaction do
-        group = build_group
         group.save!
-        create_admin_membership(group)
-        group
+        group.memberships.create!(user: creator, role: "admin")
       end
+      success(group)
+    rescue ActiveRecord::RecordInvalid => e
+      failure(e.record&.errors.presence || "Record invalid")
     end
 
     private
@@ -46,11 +51,7 @@ module Groups
 
     def next_monday
       today = Date.current
-      days_until_monday = (1 - today.wday) % 7
-      days_until_monday = 7 if days_until_monday.zero? && today.wday != 1
-      days_until_monday = 0 if today.wday == 1
-
-      today + days_until_monday.days
+      today.monday? ? today : today.next_occurring(:monday)
     end
 
     def next_month_start
@@ -64,20 +65,12 @@ module Groups
     end
 
     def generate_invite_code
-      return nil if privacy_type == "public"
+      return if privacy_type == "public"
 
       loop do
         code = SecureRandom.alphanumeric(INVITE_CODE_LENGTH).upcase
         break code unless Group.exists?(invite_code: code)
       end
-    end
-
-    def create_admin_membership(group)
-      Membership.create!(
-        group: group,
-        user: creator,
-        role: "admin",
-      )
     end
   end
 end

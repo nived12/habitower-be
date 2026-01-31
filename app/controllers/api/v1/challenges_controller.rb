@@ -7,6 +7,7 @@ module Api
 
       def index
         authorize(Challenge)
+
         @challenges = policy_scope(Challenge.kept)
       end
 
@@ -17,9 +18,11 @@ module Api
       def create
         @challenge = Challenge.new(challenge_params)
         @challenge.creator = current_user
+
         authorize(@challenge)
 
         @challenge.save!
+
         render(:show, status: :created)
       end
 
@@ -27,6 +30,7 @@ module Api
         authorize(@challenge)
 
         @challenge.update!(challenge_params)
+
         render(:show, status: :ok)
       end
 
@@ -34,6 +38,7 @@ module Api
         authorize(@challenge)
 
         @challenge.discard!
+
         head(:no_content)
       end
 

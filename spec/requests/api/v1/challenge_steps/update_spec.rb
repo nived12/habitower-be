@@ -41,7 +41,7 @@ RSpec.describe("PATCH /api/v1/challenges/:challenge_id/challenge_steps/:id", typ
       before { do_request }
 
       it "returns 422 Unprocessable Entity" do
-        expect(response).to(have_http_status(:unprocessable_entity))
+        expect(response).to(have_http_status(:unprocessable_content))
       end
     end
   end

@@ -12,34 +12,36 @@ RSpec.describe(Groups::Joiner) do
       let(:group) { create(:group, challenge: challenge, creator: creator) }
 
       context "when user is not a member" do
-        subject(:result) { described_class.new(group: group, user: user).call }
+        subject(:result) { described_class.call(group: group, user: user) }
 
         it "creates a membership" do
           expect { result }.to(change(Membership, :count).by(1))
         end
 
-        it "returns the membership" do
-          expect(result).to(be_a(Membership))
-          expect(result.user).to(eq(user))
-          expect(result.group).to(eq(group))
+        it "returns success with membership payload" do
+          expect(result.success?).to(be(true))
+          expect(result.payload).to(be_a(Membership))
+          expect(result.payload.user).to(eq(user))
+          expect(result.payload.group).to(eq(group))
         end
 
         it "sets role to member" do
-          expect(result.role).to(eq("member"))
+          expect(result.payload.role).to(eq("member"))
         end
 
         it "sets status to active" do
-          expect(result.status).to(eq("active"))
+          expect(result.payload.status).to(eq("active"))
         end
       end
 
       context "when user is already a member" do
         before { create(:membership, group: group, user: user) }
 
-        it "raises AlreadyMemberError" do
-          expect {
-            described_class.new(group: group, user: user).call
-          }.to(raise_error(Groups::Joiner::AlreadyMemberError, "User is already a member of this group"))
+        it "returns failure with message" do
+          result = described_class.call(group: group, user: user)
+
+          expect(result.failure?).to(be(true))
+          expect(result.errors.full_messages.first).to(include("already a member"))
         end
       end
 
@@ -50,8 +52,9 @@ RSpec.describe(Groups::Joiner) do
         end
 
         it "allows rejoining" do
-          result = described_class.new(group: group, user: user).call
-          expect(result).to(be_persisted)
+          result = described_class.call(group: group, user: user)
+          expect(result.success?).to(be(true))
+          expect(result.payload).to(be_persisted)
         end
       end
     end
@@ -63,7 +66,7 @@ RSpec.describe(Groups::Joiner) do
 
       context "with valid invite_code" do
         subject(:result) do
-          described_class.new(group: group, user: user, invite_code: "ABC123").call
+          described_class.call(group: group, user: user, invite_code: "ABC123")
         end
 
         it "creates a membership" do
@@ -71,32 +74,36 @@ RSpec.describe(Groups::Joiner) do
         end
 
         it "is case-insensitive for invite_code" do
-          result = described_class.new(group: group, user: user, invite_code: "abc123").call
-          expect(result).to(be_persisted)
+          result = described_class.call(group: group, user: user, invite_code: "abc123")
+          expect(result.success?).to(be(true))
+          expect(result.payload).to(be_persisted)
         end
       end
 
       context "with invalid invite_code" do
-        it "raises InvalidInviteCodeError" do
-          expect {
-            described_class.new(group: group, user: user, invite_code: "WRONG1").call
-          }.to(raise_error(Groups::Joiner::InvalidInviteCodeError, "Invalid invite code"))
+        it "returns failure" do
+          result = described_class.call(group: group, user: user, invite_code: "WRONG1")
+
+          expect(result.failure?).to(be(true))
+          expect(result.errors.full_messages.first).to(include("Invalid invite code"))
         end
       end
 
       context "without invite_code" do
-        it "raises InvalidInviteCodeError" do
-          expect {
-            described_class.new(group: group, user: user).call
-          }.to(raise_error(Groups::Joiner::InvalidInviteCodeError, "Invalid invite code"))
+        it "returns failure" do
+          result = described_class.call(group: group, user: user)
+
+          expect(result.failure?).to(be(true))
+          expect(result.errors.full_messages.first).to(include("Invalid invite code"))
         end
       end
 
       context "with empty invite_code" do
-        it "raises InvalidInviteCodeError" do
-          expect {
-            described_class.new(group: group, user: user, invite_code: "").call
-          }.to(raise_error(Groups::Joiner::InvalidInviteCodeError, "Invalid invite code"))
+        it "returns failure" do
+          result = described_class.call(group: group, user: user, invite_code: "")
+
+          expect(result.failure?).to(be(true))
+          expect(result.errors.full_messages.first).to(include("Invalid invite code"))
         end
       end
     end

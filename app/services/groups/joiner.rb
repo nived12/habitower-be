@@ -1,37 +1,36 @@
 # frozen_string_literal: true
 
 module Groups
-  class Joiner
-    class AlreadyMemberError < StandardError; end
-    class InvalidInviteCodeError < StandardError; end
-
+  class Joiner < ApplicationService
     attr_reader :group, :user, :invite_code
 
     def initialize(group:, user:, invite_code: nil)
+      super()
       @group = group
       @user = user
       @invite_code = invite_code
     end
 
     def call
-      validate_not_already_member!
-      validate_invite_code! if group.privacy_type_private?
+      return failure("User is already a member of this group") if already_member?
+      return failure("Invalid invite code") if private_group? && !valid_invite_code?
 
-      find_or_create_membership
+      membership = find_or_create_membership
+      success(membership)
     end
 
     private
 
-    def validate_not_already_member!
-      return unless group.memberships.kept.exists?(user_id: user.id)
-
-      raise(AlreadyMemberError, "User is already a member of this group")
+    def already_member?
+      group.memberships.kept.exists?(user_id: user.id)
     end
 
-    def validate_invite_code!
-      return if invite_code.present? && invite_code.upcase == group.invite_code&.upcase
+    def private_group?
+      group.privacy_type_private?
+    end
 
-      raise(InvalidInviteCodeError, "Invalid invite code")
+    def valid_invite_code?
+      invite_code.present? && invite_code.upcase == group.invite_code&.upcase
     end
 
     def find_or_create_membership

@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 module Groups
-  class MemberAdder
-    class UserNotFoundError < StandardError; end
-    class AlreadyMemberError < StandardError; end
-    class NotAuthorizedError < StandardError; end
-
+  class MemberAdder < ApplicationService
     attr_reader :group, :identifier, :current_user, :role
 
     def initialize(group:, identifier:, current_user:, role: "member")
+      super()
       @group = group
       @identifier = identifier
       @current_user = current_user
@@ -16,36 +13,28 @@ module Groups
     end
 
     def call
-      validate_authorization!
-      user = find_user!
-      validate_not_already_member!(user)
+      return failure("Only group admins can add members") unless admin?
 
-      create_membership(user)
+      user = find_user
+      return failure("User not found with identifier: #{identifier}") if user.nil?
+      return failure("User is already a member of this group") if already_member?(user)
+
+      membership = create_membership(user)
+      success(membership)
     end
 
     private
-
-    def validate_authorization!
-      return if admin?
-
-      raise(NotAuthorizedError, "Only group admins can add members")
-    end
 
     def admin?
       group.memberships.kept.exists?(user_id: current_user.id, role: "admin")
     end
 
-    def find_user!
-      user = User.by_email_or_username(identifier).first
-      raise(UserNotFoundError, "User not found with identifier: #{identifier}") unless user
-
-      user
+    def find_user
+      User.by_email_or_username(identifier).first
     end
 
-    def validate_not_already_member!(user)
-      return unless group.memberships.kept.exists?(user_id: user.id)
-
-      raise(AlreadyMemberError, "User is already a member of this group")
+    def already_member?(user)
+      group.memberships.kept.exists?(user_id: user.id)
     end
 
     def create_membership(user)

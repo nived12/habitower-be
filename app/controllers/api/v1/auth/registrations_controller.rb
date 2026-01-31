@@ -20,7 +20,7 @@ module Api
             @user = resource
             render(:create, status: :created)
           else
-            render(json: { errors: resource.errors.full_messages }, status: :unprocessable_entity)
+            render(json: { errors: resource.errors.full_messages }, status: :unprocessable_content)
           end
         end
       end

@@ -6,6 +6,7 @@ Rails 8.x (API Mode), PostgreSQL, RSpec, Devise + JWT, Discard, Factory Bot.
 
 ## Architecture
 - **SOLID & Services:** Business logic in `app/services`; controllers handle routing/params.
+- **ApplicationService:** Service objects inherit `ApplicationService` and use `.call(...)`; implement `#call` and return `success(payload)` or `failure(message)` (or `failure(ActiveModel::Errors)`). Callers get an `ApplicationService::Response` with `success?`/`failure?`, `payload`, and `errors` (ActiveModel::Errors). Use `render_service_errors(result.errors)` or `render_error(status_code, detail, http_status)` from `Api::V1::ErrorHandler` when handling failures in controllers.
 - **Traceability (Discard):** Soft deletes via [Discard](https://github.com/jhawthorn/discard). Domain models (Challenge, Group, Membership, ChallengeStep, ProgressLog) include `Discard::Model`; associations use `dependent: :destroy` and **`after_discard` callbacks** to cascade (e.g. `after_discard { challenge_steps.discard_all; groups.discard_all }`). Use `record.discard` (not `destroy`), `Model.kept` / `Model.discarded` for scoping.
 - **Timing:** Weekly challenges start on the nearest Monday; monthly on the 1st.
 
@@ -26,6 +27,7 @@ Evolving stacks: Challenge is a timeline; users see steps where `position <= cur
 
 ## API Standards
 - Controllers inherit `Api::V1::BaseController`; use `before_action :authenticate_user!`. Standard error JSON: `{ "errors": [{ "status": "422", "source": { "pointer": "/data/attributes/title" }, "detail": "..." }] }`. BaseController rescues `RecordNotFound` (404) and `RecordInvalid` (422).
+- Use **`:unprocessable_content`** (not `:unprocessable_entity`) for 422 responses in `render(..., status: ...)` and in specs (e.g. `have_http_status(:unprocessable_content)`). Rack deprecates `:unprocessable_entity` in favor of `:unprocessable_content`.
 
 ## Testing
 
