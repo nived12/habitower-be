@@ -5,6 +5,11 @@ module RequestHelpers
     { "Content-Type" => "application/json", "Accept" => "application/json" }
   end
 
+  def auth_headers(user)
+    token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
+    json_headers.merge("Authorization" => "Bearer #{token}")
+  end
+
   def parsed_body
     JSON.parse(response.body)
   end

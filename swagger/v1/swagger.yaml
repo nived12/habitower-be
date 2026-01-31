@@ -97,6 +97,538 @@ paths:
       responses:
         '200':
           description: ok
+  "/api/v1/challenges/{challenge_id}/challenge_steps":
+    parameters:
+    - name: challenge_id
+      in: path
+      required: true
+      description: Challenge ID
+      schema:
+        type: integer
+    get:
+      summary: List challenge steps
+      tags:
+      - Challenge Steps
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '404':
+          description: challenge not found
+    post:
+      summary: Create a challenge step
+      tags:
+      - Challenge Steps
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+        '403':
+          description: forbidden (not owner)
+        '422':
+          description: validation error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challenge_step:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: Morning Meditation
+                    position:
+                      type: integer
+                      example: 1
+                    requirements:
+                      type: object
+                      example:
+                        duration_minutes: 10
+                  required:
+                  - title
+                  - position
+              required:
+              - challenge_step
+  "/api/v1/challenges/{challenge_id}/challenge_steps/{id}":
+    parameters:
+    - name: challenge_id
+      in: path
+      required: true
+      description: Challenge ID
+      schema:
+        type: integer
+    - name: id
+      in: path
+      required: true
+      description: Challenge Step ID
+      schema:
+        type: integer
+    get:
+      summary: Get a challenge step
+      tags:
+      - Challenge Steps
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '404':
+          description: not found
+    patch:
+      summary: Update a challenge step
+      tags:
+      - Challenge Steps
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '403':
+          description: forbidden (not owner)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challenge_step:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    position:
+                      type: integer
+                    requirements:
+                      type: object
+              required:
+              - challenge_step
+    delete:
+      summary: Delete a challenge step
+      tags:
+      - Challenge Steps
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '204':
+          description: no content
+        '403':
+          description: forbidden (not owner)
+  "/api/v1/challenges":
+    get:
+      summary: List challenges
+      tags:
+      - Challenges
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+    post:
+      summary: Create a challenge
+      tags:
+      - Challenges
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+        '422':
+          description: validation error
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challenge:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: 30 Day Fitness Challenge
+                    description:
+                      type: string
+                      example: Build healthy exercise habits
+                    period_type:
+                      type: string
+                      enum:
+                      - weekly
+                      - monthly
+                      example: weekly
+                    privacy_type:
+                      type: string
+                      enum:
+                      - public
+                      - private
+                      example: public
+                    rules:
+                      type: object
+                      example: {}
+                  required:
+                  - title
+              required:
+              - challenge
+  "/api/v1/challenges/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Challenge ID
+      schema:
+        type: integer
+    get:
+      summary: Get a challenge
+      tags:
+      - Challenges
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '404':
+          description: not found
+        '403':
+          description: forbidden (private challenge)
+    patch:
+      summary: Update a challenge
+      tags:
+      - Challenges
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '403':
+          description: forbidden (not owner)
+        '404':
+          description: not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challenge:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    period_type:
+                      type: string
+                      enum:
+                      - weekly
+                      - monthly
+                    privacy_type:
+                      type: string
+                      enum:
+                      - public
+                      - private
+                    rules:
+                      type: object
+              required:
+              - challenge
+    delete:
+      summary: Delete a challenge
+      tags:
+      - Challenges
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '204':
+          description: no content
+        '403':
+          description: forbidden (not owner)
+        '404':
+          description: not found
+  "/api/v1/groups":
+    get:
+      summary: List groups
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+    post:
+      summary: Create a group
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+        '404':
+          description: challenge not found
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group:
+                  type: object
+                  properties:
+                    challenge_id:
+                      type: integer
+                      example: 1
+                    privacy_type:
+                      type: string
+                      enum:
+                      - public
+                      - private
+                      example: public
+                    start_date:
+                      type: string
+                      format: date
+                      example: '2026-02-01'
+                  required:
+                  - challenge_id
+              required:
+              - group
+  "/api/v1/groups/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Group ID
+      schema:
+        type: integer
+    get:
+      summary: Get a group
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '404':
+          description: not found
+        '403':
+          description: forbidden (private group)
+    patch:
+      summary: Update a group
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '403':
+          description: forbidden (not owner)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group:
+                  type: object
+                  properties:
+                    privacy_type:
+                      type: string
+                      enum:
+                      - public
+                      - private
+              required:
+              - group
+    delete:
+      summary: Delete a group
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '204':
+          description: no content
+        '403':
+          description: forbidden (not owner)
+  "/api/v1/groups/{id}/join":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Group ID
+      schema:
+        type: integer
+    post:
+      summary: Join a group
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '201':
+          description: joined successfully
+        '403':
+          description: invalid invite code
+        '422':
+          description: already a member
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invite_code:
+                  type: string
+                  example: ABC123
+                  description: Required for private groups
+  "/api/v1/groups/{id}/leave":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Group ID
+      schema:
+        type: integer
+    delete:
+      summary: Leave a group
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '204':
+          description: left successfully
+        '403':
+          description: forbidden (creator cannot leave)
 servers:
 - url: https://{defaultHost}
   variables:

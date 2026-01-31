@@ -4,6 +4,7 @@ class Group < ApplicationRecord
   include Discard::Model
 
   validates :start_date, presence: true
+  validates :invite_code, uniqueness: true, allow_nil: true
 
   enum :privacy_type, { public: "public", private: "private" }, default: :public, validate: true, prefix: true
 
@@ -13,6 +14,27 @@ class Group < ApplicationRecord
   has_many :users, through: :memberships
 
   after_discard { memberships.discard_all }
+
+  scope :publicly_joinable, -> { where(privacy_type: "public") }
+
+  def current_week
+    return 0 if start_date > Date.current
+
+    weeks_elapsed = ((Date.current - start_date).to_i / 7) + 1
+    weeks_elapsed
+  end
+
+  def current_period
+    return 0 if start_date > Date.current
+
+    if challenge.weekly?
+      current_week
+    else
+      months_elapsed = ((Date.current.year * 12 + Date.current.month) -
+                        (start_date.year * 12 + start_date.month)) + 1
+      months_elapsed
+    end
+  end
 end
 
 # == Schema Information

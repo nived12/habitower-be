@@ -19,4 +19,20 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :challenges, only: [:index, :show, :create, :update, :destroy] do
+        resources :challenge_steps, only: [:index, :show, :create, :update, :destroy]
+      end
+
+      resources :groups, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :join
+          delete :leave
+        end
+        resources :memberships, only: [:index, :create, :destroy]
+      end
+    end
+  end
 end

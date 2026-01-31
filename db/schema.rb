@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_30_013819) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_30_052417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,8 +37,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_013819) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "discarded_at"
+    t.string "privacy_type", default: "public", null: false
     t.index ["creator_id"], name: "index_challenges_on_creator_id"
     t.index ["discarded_at"], name: "index_challenges_on_discarded_at"
+    t.index ["privacy_type"], name: "index_challenges_on_privacy_type"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -97,9 +99,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_013819) do
     t.string "first_name"
     t.string "last_name"
     t.string "avatar_url"
+    t.string "username"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "challenge_steps", "challenges"
