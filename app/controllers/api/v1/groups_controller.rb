@@ -13,6 +13,12 @@ module Api
 
       def show
         authorize(@group)
+        @include_members = params[:include_members].present?
+        if @include_members
+          @members = @group.memberships.kept.includes(:user)
+          timezone = params[:user_timezone].presence || "UTC"
+          @integrity_data = Memberships::IntegrityCalculator.batch(@members, timezone: timezone)
+        end
       end
 
       def create

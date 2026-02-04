@@ -13,6 +13,8 @@ class ChallengeTemplate < ApplicationRecord
   has_many :groups, dependent: :destroy
   has_many :memberships, through: :groups
   has_many :members, through: :memberships, source: :user
+  has_many :challenge_template_categories, dependent: :destroy
+  has_many :categories, through: :challenge_template_categories
 
   after_discard { challenge_step_templates.discard_all; groups.discard_all }
 

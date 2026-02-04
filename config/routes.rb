@@ -39,6 +39,30 @@ Rails.application.routes.draw do
       get "memberships/:id/active_stack", to: "memberships#active_stack"
       get "memberships/:id/integrity", to: "memberships#integrity"
 
+      get "feed", to: "feed#index"
+      resources :progress_logs, only: [:create] do
+        member do
+          post :react
+        end
+      end
+
+      get "me", to: "profile#show"
+      patch "me", to: "profile#update"
+
+      resources :notifications, only: [:index] do
+        member do
+          post :read
+        end
+        collection do
+          post :read_all
+        end
+      end
+
+      resources :follows, only: [:index, :create, :destroy]
+      get "followers", to: "follows#followers"
+
+      resources :categories, only: [:index]
+
       get "uploads/signed_url", to: "uploads#signed_url"
       resources :devices, only: [:create]
     end

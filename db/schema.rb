@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_03_130001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "icon"
+    t.index ["slug"], name: "index_categories_on_slug", unique: true
+  end
 
   create_table "challenge_step_templates", force: :cascade do |t|
     t.bigint "challenge_template_id", null: false
@@ -26,6 +35,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
     t.index ["challenge_template_id"], name: "index_challenge_step_templates_on_challenge_template_id"
     t.index ["creator_id"], name: "index_challenge_step_templates_on_creator_id"
     t.index ["discarded_at"], name: "index_challenge_step_templates_on_discarded_at"
+  end
+
+  create_table "challenge_template_categories", force: :cascade do |t|
+    t.bigint "challenge_template_id", null: false
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_challenge_template_categories_on_category_id"
+    t.index ["challenge_template_id", "category_id"], name: "idx_template_categories_unique", unique: true
+    t.index ["challenge_template_id"], name: "index_challenge_template_categories_on_challenge_template_id"
   end
 
   create_table "challenge_templates", force: :cascade do |t|
@@ -51,6 +70,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "platform"], name: "index_devices_on_user_id_and_platform", unique: true
     t.index ["user_id"], name: "index_devices_on_user_id"
+  end
+
+  create_table "follows", force: :cascade do |t|
+    t.bigint "follower_id", null: false
+    t.bigint "followed_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["followed_id"], name: "index_follows_on_followed_id"
+    t.index ["follower_id", "followed_id"], name: "index_follows_on_follower_id_and_followed_id", unique: true
+    t.index ["follower_id"], name: "index_follows_on_follower_id"
   end
 
   create_table "group_steps", force: :cascade do |t|
@@ -101,6 +130,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
     t.index ["user_id"], name: "index_memberships_on_user_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "recipient_id", null: false
+    t.bigint "actor_id"
+    t.string "action", null: false
+    t.string "notifiable_type"
+    t.bigint "notifiable_id"
+    t.datetime "read_at"
+    t.jsonb "data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["recipient_id", "read_at"], name: "index_notifications_on_recipient_id_and_read_at"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
+  end
+
   create_table "progress_logs", force: :cascade do |t|
     t.bigint "membership_id", null: false
     t.decimal "value", precision: 15, scale: 4, null: false
@@ -114,6 +159,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
     t.index ["discarded_at"], name: "index_progress_logs_on_discarded_at"
     t.index ["group_step_id"], name: "index_progress_logs_on_group_step_id"
     t.index ["membership_id"], name: "index_progress_logs_on_membership_id"
+  end
+
+  create_table "reactions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "progress_log_id", null: false
+    t.string "kind", default: "high_five", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["progress_log_id"], name: "index_reactions_on_progress_log_id"
+    t.index ["user_id", "progress_log_id", "kind"], name: "index_reactions_on_user_id_and_progress_log_id_and_kind", unique: true
+    t.index ["user_id"], name: "index_reactions_on_user_id"
   end
 
   create_table "refresh_tokens", force: :cascade do |t|
@@ -140,6 +196,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
     t.string "last_name"
     t.string "avatar_url"
     t.string "username"
+    t.text "bio"
+    t.string "timezone", default: "UTC"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -148,8 +206,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
 
   add_foreign_key "challenge_step_templates", "challenge_templates"
   add_foreign_key "challenge_step_templates", "users", column: "creator_id"
+  add_foreign_key "challenge_template_categories", "categories"
+  add_foreign_key "challenge_template_categories", "challenge_templates"
   add_foreign_key "challenge_templates", "users", column: "creator_id"
   add_foreign_key "devices", "users"
+  add_foreign_key "follows", "users", column: "followed_id"
+  add_foreign_key "follows", "users", column: "follower_id"
   add_foreign_key "group_steps", "challenge_step_templates", column: "original_step_id"
   add_foreign_key "group_steps", "groups"
   add_foreign_key "group_steps", "users", column: "creator_id"
@@ -157,7 +219,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_30_120600) do
   add_foreign_key "groups", "users", column: "creator_id"
   add_foreign_key "memberships", "groups"
   add_foreign_key "memberships", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
+  add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "progress_logs", "group_steps"
   add_foreign_key "progress_logs", "memberships"
+  add_foreign_key "reactions", "progress_logs"
+  add_foreign_key "reactions", "users"
   add_foreign_key "refresh_tokens", "users"
 end
