@@ -7,7 +7,7 @@ RSpec.describe("Feed API", type: :request) do
   let(:Authorization) { "Bearer #{Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first}" }
 
   path "/api/v1/feed" do
-    get "List feed items" do
+    get "Get current user feed" do
       tags "Feed"
       security [bearer_auth: []]
       produces "application/json"

@@ -11,59 +11,58 @@ Rails.application.routes.draw do
       devise_for :users,
         skip: [:registrations],
         path: "",
-        path_names: { sign_in: "auth/login", sign_out: "auth/logout" },
+        path_names: { sign_in: "sessions", sign_out: "sessions" },
         controllers: { sessions: "api/v1/auth/sessions" }
 
       devise_scope :user do
-        post "auth/sign_up", to: "api/v1/auth/registrations#create", as: :user_registration
+        post "sessions/refresh", to: "api/v1/auth/refresh#create"
       end
     end
   end
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      post "auth/refresh", to: "auth/refresh#create"
+      resources :users, only: [:create], controller: "auth/registrations"
 
       resources :challenges, only: [:index, :show, :create, :update, :destroy] do
         resources :challenge_steps, only: [:index, :show, :create, :update, :destroy]
       end
 
       resources :groups, only: [:index, :show, :create, :update, :destroy] do
-        member do
-          post :join
-          delete :leave
+        resources :member_towers, only: [:index], path: "member-towers"
+        resources :memberships, only: [:index, :create, :destroy] do
+          member do
+            get :active_stack, path: "active-stack"
+            get :integrity
+          end
         end
-        resources :memberships, only: [:index, :create, :destroy]
       end
 
-      get "memberships/:id/active_stack", to: "memberships#active_stack"
-      get "memberships/:id/integrity", to: "memberships#integrity"
+      # Singular resource: one feed per user (Rails convention)
+      resource :feed, only: [:show], controller: "feed"
 
-      get "feed", to: "feed#index"
       resources :progress_logs, only: [:create] do
-        member do
-          post :react
-        end
+        resources :reactions, only: [:create, :destroy]
       end
 
-      get "me", to: "profile#show"
-      patch "me", to: "profile#update"
+      # Singular resource: current user profile + nested follow lists (Rails convention)
+      resource :me, only: [:show, :update], controller: "profile", as: "current_user" do
+        get :followers, to: "follows#followers"
+        get :following, to: "follows#index"
+      end
 
-      resources :notifications, only: [:index] do
-        member do
-          post :read
-        end
+      resources :notifications, only: [:index, :update] do
         collection do
           post :read_all
         end
       end
 
-      resources :follows, only: [:index, :create, :destroy]
-      get "followers", to: "follows#followers"
+      resources :follows, only: [:create, :destroy]
 
       resources :categories, only: [:index]
 
-      get "uploads/signed_url", to: "uploads#signed_url"
+      resources :uploads, only: [:create], path: "uploads"
+
       resources :devices, only: [:create]
     end
   end

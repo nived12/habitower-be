@@ -47,12 +47,12 @@ RSpec.describe("Progress Logs API", type: :request) do
     end
   end
 
-  path "/api/v1/progress_logs/{id}/react" do
-    parameter name: :id, in: :path, type: :integer, required: true, description: "Progress log ID"
+  path "/api/v1/progress_logs/{progress_log_id}/reactions" do
+    parameter name: :progress_log_id, in: :path, type: :integer, required: true, description: "Progress log ID"
     let(:progress_log) { create(:progress_log, membership: membership, group_step: group_step) }
-    let(:id) { progress_log.id }
+    let(:progress_log_id) { progress_log.id }
 
-    post "Toggle reaction on a progress log" do
+    post "Create or toggle reaction on a progress log" do
       tags "Progress Logs"
       security [bearer_auth: []]
       consumes "application/json"
@@ -65,8 +65,18 @@ RSpec.describe("Progress Logs API", type: :request) do
         }
       }
 
-      response "200", "success" do
+      response "200", "success (toggle off existing reaction)" do
+        let!(:existing_reaction) { create(:reaction, user: user, progress_log: progress_log, kind: "high_five") }
         let(:body) { { kind: "high_five" } }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data).to(have_key("reacted_by_me"))
+          expect(data).to(have_key("reactions_count"))
+        end
+      end
+
+      response "201", "created" do
+        let(:body) { { kind: "nudge" } }
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data).to(have_key("reacted_by_me"))

@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe("POST /api/v1/groups/:id/join", type: :request) do
+RSpec.describe("POST /api/v1/groups/:group_id/memberships (join)", type: :request) do
   let(:user) { create(:user) }
   let(:creator) { create(:user) }
   let(:challenge_template) { create(:challenge_template, creator: creator) }
 
   subject(:do_request) do
-    post "/api/v1/groups/#{group.id}/join", params: request_params.to_json, headers: auth_headers(user)
+    post "/api/v1/groups/#{group.id}/memberships", params: request_params.to_json, headers: auth_headers(user)
   end
 
   context "with a public group" do
@@ -98,7 +98,7 @@ RSpec.describe("POST /api/v1/groups/:id/join", type: :request) do
     let(:request_params) { {} }
 
     subject(:do_request) do
-      post "/api/v1/groups/999999/join", params: request_params.to_json, headers: auth_headers(user)
+      post "/api/v1/groups/999999/memberships", params: request_params.to_json, headers: auth_headers(user)
     end
 
     before { do_request }
@@ -113,7 +113,7 @@ RSpec.describe("POST /api/v1/groups/:id/join", type: :request) do
     let(:request_params) { {} }
 
     subject(:do_request) do
-      post "/api/v1/groups/#{group.id}/join", params: request_params.to_json, headers: json_headers
+      post "/api/v1/groups/#{group.id}/memberships", params: request_params.to_json, headers: json_headers
     end
 
     before { do_request }

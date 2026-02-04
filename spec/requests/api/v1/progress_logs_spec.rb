@@ -70,7 +70,7 @@ RSpec.describe("POST /api/v1/progress_logs", type: :request) do
   end
 end
 
-RSpec.describe("POST /api/v1/progress_logs/:id/react", type: :request) do
+RSpec.describe("POST /api/v1/progress_logs/:progress_log_id/reactions", type: :request) do
   let(:user) { create(:user) }
   let(:creator) { create(:user) }
   let(:challenge_template) { create(:challenge_template, creator: creator) }
@@ -81,7 +81,7 @@ RSpec.describe("POST /api/v1/progress_logs/:id/react", type: :request) do
   let!(:viewer_membership) { create(:membership, user: user, group: group) }
 
   subject(:do_request) do
-    post "/api/v1/progress_logs/#{progress_log.id}/react",
+    post "/api/v1/progress_logs/#{progress_log.id}/reactions",
       params: { kind: "high_five" },
       headers: auth_headers(user),
       as: :json
@@ -114,7 +114,7 @@ RSpec.describe("POST /api/v1/progress_logs/:id/react", type: :request) do
     let(:other_user) { create(:user) }
 
     subject(:do_request) do
-      post "/api/v1/progress_logs/#{progress_log.id}/react",
+      post "/api/v1/progress_logs/#{progress_log.id}/reactions",
         params: { kind: "high_five" },
         headers: auth_headers(other_user),
         as: :json

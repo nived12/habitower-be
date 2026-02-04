@@ -6,16 +6,19 @@ module Api
       before_action :set_challenge
       before_action :set_challenge_step, only: [:show, :update, :destroy]
 
+      # GET /api/v1/challenges/:challenge_id/challenge_steps
       def index
         @challenge_steps = @challenge.challenge_step_templates.kept.order(:position)
 
         authorize(@challenge_steps.first || @challenge.challenge_step_templates.build)
       end
 
+      # GET /api/v1/challenges/:challenge_id/challenge_steps/:id
       def show
         authorize(@challenge_step)
       end
 
+      # POST /api/v1/challenges/:challenge_id/challenge_steps
       def create
         @challenge_step = @challenge.challenge_step_templates.build(challenge_step_params)
         @challenge_step.creator = current_user
@@ -26,6 +29,7 @@ module Api
         render(:show, status: :created)
       end
 
+      # PATCH /api/v1/challenges/:challenge_id/challenge_steps/:id
       def update
         authorize(@challenge_step)
 
@@ -34,6 +38,7 @@ module Api
         render(:show, status: :ok)
       end
 
+      # DELETE /api/v1/challenges/:challenge_id/challenge_steps/:id
       def destroy
         authorize(@challenge_step)
 

@@ -21,12 +21,12 @@ RSpec.describe("GET /api/v1/notifications", type: :request) do
   end
 end
 
-RSpec.describe("POST /api/v1/notifications/:id/read", type: :request) do
+RSpec.describe("PATCH /api/v1/notifications/:id", type: :request) do
   let(:user) { create(:user) }
   let(:notification) { create(:notification, recipient: user, actor: create(:user), action: "high_five") }
 
   subject(:do_request) do
-    post "/api/v1/notifications/#{notification.id}/read", headers: auth_headers(user)
+    patch "/api/v1/notifications/#{notification.id}", headers: auth_headers(user)
   end
 
   before { do_request }

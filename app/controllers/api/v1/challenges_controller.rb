@@ -5,6 +5,7 @@ module Api
     class ChallengesController < BaseController
       before_action :set_challenge, only: [:show, :update, :destroy]
 
+      # GET /api/v1/challenges
       def index
         authorize(ChallengeTemplate)
 
@@ -12,10 +13,12 @@ module Api
         @challenges = filter_by_category(@challenges) if params[:category_id] || params[:category_slug]
       end
 
+      # GET /api/v1/challenges/:id
       def show
         authorize(@challenge)
       end
 
+      # POST /api/v1/challenges
       def create
         @challenge = ChallengeTemplate.new(challenge_params)
         @challenge.creator = current_user
@@ -27,6 +30,7 @@ module Api
         render(:show, status: :created)
       end
 
+      # PATCH /api/v1/challenges/:id
       def update
         authorize(@challenge)
 
@@ -35,6 +39,7 @@ module Api
         render(:show, status: :ok)
       end
 
+      # DELETE /api/v1/challenges/:id
       def destroy
         authorize(@challenge)
 

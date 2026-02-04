@@ -7,7 +7,7 @@ RSpec.describe("Follows API", type: :request) do
   let(:Authorization) { "Bearer #{Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first}" }
   let(:followed) { create(:user) }
 
-  path "/api/v1/follows" do
+  path "/api/v1/me/following" do
     get "List users the current user follows" do
       tags "Follows"
       security [bearer_auth: []]
@@ -21,7 +21,9 @@ RSpec.describe("Follows API", type: :request) do
         end
       end
     end
+  end
 
+  path "/api/v1/follows" do
     post "Follow a user" do
       tags "Follows"
       security [bearer_auth: []]
@@ -47,7 +49,7 @@ RSpec.describe("Follows API", type: :request) do
     end
   end
 
-  path "/api/v1/followers" do
+  path "/api/v1/me/followers" do
     get "List followers of the current user" do
       tags "Follows"
       security [bearer_auth: []]

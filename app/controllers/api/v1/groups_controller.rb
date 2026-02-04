@@ -3,14 +3,16 @@
 module Api
   module V1
     class GroupsController < BaseController
-      before_action :set_group, only: [:show, :update, :destroy, :join, :leave]
+      before_action :set_group, only: [:show, :update, :destroy]
 
+      # GET /api/v1/groups
       def index
         authorize(Group)
 
         @groups = policy_scope(Group.kept).includes(:challenge_template, :creator)
       end
 
+      # GET /api/v1/groups/:id
       def show
         authorize(@group)
         @include_members = params[:include_members].present?
@@ -21,6 +23,7 @@ module Api
         end
       end
 
+      # POST /api/v1/groups
       def create
         challenge_template = ChallengeTemplate.kept.find(params.dig(:group, :challenge_template_id))
 
@@ -41,6 +44,7 @@ module Api
         render(:show, status: :created)
       end
 
+      # PATCH /api/v1/groups/:id
       def update
         authorize(@group)
 
@@ -48,38 +52,11 @@ module Api
         render(:show, status: :ok)
       end
 
+      # DELETE /api/v1/groups/:id
       def destroy
         authorize(@group)
 
         @group.discard!
-        head(:no_content)
-      end
-
-      def join
-        authorize(@group)
-
-        result = Groups::Joiner.call(
-          group: @group,
-          user: current_user,
-          invite_code: params[:invite_code],
-        )
-
-        if result.failure?
-          status_code = result.errors.full_messages.first&.include?("Invalid invite") ? "403" : "422"
-          http_status = status_code == "403" ? :forbidden : :unprocessable_content
-          render_error(status_code, result.errors.full_messages.first, http_status)
-          return
-        end
-
-        @membership = result.payload
-        render(:join, status: :created)
-      end
-
-      def leave
-        authorize(@group)
-
-        membership = @group.memberships.kept.find_by!(user_id: current_user.id)
-        membership.discard!
         head(:no_content)
       end
 

@@ -3,6 +3,7 @@
 module Api
   module V1
     class NotificationsController < BaseController
+      # GET /api/v1/notifications
       def index
         page = [params[:page].to_i, 1].max
         per_page = [params[:per_page].to_i, 1].max
@@ -21,12 +22,14 @@ module Api
         }
       end
 
-      def read
+      # PATCH /api/v1/notifications/:id
+      def update
         notification = current_user.notifications.find(params[:id])
-        notification.update!(read_at: Time.current)
+        notification.update!(read_at: params[:read_at].presence || Time.current)
         head(:ok)
       end
 
+      # POST /api/v1/notifications/read_all
       def read_all
         current_user.notifications.unread.update_all(read_at: Time.current)
         head(:ok)

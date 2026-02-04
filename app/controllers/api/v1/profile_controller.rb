@@ -3,12 +3,14 @@
 module Api
   module V1
     class ProfileController < BaseController
+      # GET /api/v1/me
       def show
         @user = current_user
         result = Stats::Calculator.call(user: current_user)
         @stats = result.success? ? result.payload : {}
       end
 
+      # PATCH /api/v1/me
       def update
         @user = current_user
         if @user.update(profile_params)

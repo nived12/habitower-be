@@ -34,6 +34,22 @@ Evolving stacks: ChallengeTemplate is a timeline; users see GroupSteps where `po
 ## API Standards
 - Controllers inherit `Api::V1::BaseController`; use `before_action :authenticate_user!`. Standard error JSON: `{ "errors": [{ "status": "422", "source": { "pointer": "/data/attributes/title" }, "detail": "..." }] }`. BaseController rescues `RecordNotFound` (404) and `RecordInvalid` (422).
 - Use **`:unprocessable_content`** (not `:unprocessable_entity`) for 422 responses in `render(..., status: ...)` and in specs (e.g. `have_http_status(:unprocessable_content)`). Rack deprecates `:unprocessable_entity` in favor of `:unprocessable_content`.
+- **Path comments:** Each controller action that maps to a route has a comment above it with the HTTP method and path (e.g. `# GET /api/v1/feed`). This keeps routes visible in the controller.
+
+### API documentation (all endpoints)
+- **Every API endpoint must be documented** via integration specs in `spec/integration/api/v1/`. Integration specs use the RSwag DSL and drive the OpenAPI document; run `bundle exec rake rswag:specs:swaggerize` to regenerate `swagger/v1/swagger.yaml`. The live docs are at `/api-docs`.
+- When adding or changing an endpoint, add or update the corresponding integration spec (path, parameters, response examples). Do not leave new or modified routes undocumented.
+
+### Routing and REST (Rails conventions)
+- **Auth:** `POST /api/v1/sessions` (login), `DELETE /api/v1/sessions` (logout), `POST /api/v1/sessions/refresh` (refresh token), `POST /api/v1/users` (sign up).
+- **Current user (singular resource):** `GET /api/v1/me`, `PATCH /api/v1/me` (profile); `GET /api/v1/me/followers`, `GET /api/v1/me/following` (follow lists).
+- **Feed (singular resource):** `GET /api/v1/feed` (paginated feed; one feed per user).
+- **Groups and memberships:** Join = `POST /api/v1/groups/:group_id/memberships` with body `{ invite_code: "..." }` (no `identifier`). Admin add member = same path with `{ identifier: "email_or_username", role: "member" }`. Leave = `DELETE /api/v1/groups/:group_id/memberships/:id` where `:id` is the current user’s membership id.
+- **Member towers:** `GET /api/v1/groups/:group_id/member-towers` — paginated list (current user first). Query: `page`, `per_page`, `date`, `user_timezone`.
+- **Membership sub-resources:** `GET /api/v1/groups/:group_id/memberships/:id/active-stack`, `GET /api/v1/groups/:group_id/memberships/:id/integrity`.
+- **Notifications:** Mark as read = `PATCH /api/v1/notifications/:id` (sets `read_at`). `POST /api/v1/notifications/read_all` for bulk.
+- **Uploads:** `POST /api/v1/uploads` with body `{ filename, content_type }` returns `{ url, object_key }` (signed URL).
+- **Reactions:** `POST /api/v1/progress_logs/:progress_log_id/reactions` with body `{ kind: "high_five" | "nudge" }` (toggle). `DELETE /api/v1/progress_logs/:progress_log_id/reactions/:id` to remove.
 
 ## Testing
 
@@ -54,7 +70,8 @@ Evolving stacks: ChallengeTemplate is a timeline; users see GroupSteps where `po
 
 ## Instructions for Cursor
 1. Use RSpec for all tests. **Request specs** (`spec/requests/`) for behavior; **integration specs** (`spec/integration/`) for Swagger; **model specs** (`spec/models/`) for validations/associations/discard.
-2. Use **Factory Bot** for test data; use **`let(:...)`** in specs (no raw variables). Factories in `spec/factories/`.
-3. Follow the Service Object pattern for joining groups and logging progress.
-4. Enums: strings in the model, not integers.
-5. Update CONTEXT.md when adding or changing guidelines (only when required).
+2. **Document every API endpoint** in `spec/integration/api/v1/` (RSwag DSL). After adding or changing a route, add or update the corresponding integration spec and run `rake rswag:specs:swaggerize` so Swagger stays in sync.
+3. Use **Factory Bot** for test data; use **`let(:...)`** in specs (no raw variables). Factories in `spec/factories/`.
+4. Follow the Service Object pattern for joining groups and logging progress.
+5. Enums: strings in the model, not integers.
+6. Update CONTEXT.md when adding or changing guidelines (only when required).

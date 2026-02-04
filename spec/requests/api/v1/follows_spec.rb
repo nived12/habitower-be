@@ -66,12 +66,12 @@ RSpec.describe("DELETE /api/v1/follows/:id", type: :request) do
   end
 end
 
-RSpec.describe("GET /api/v1/follows", type: :request) do
+RSpec.describe("GET /api/v1/me/following", type: :request) do
   let(:user) { create(:user) }
   let(:followed) { create(:user) }
   let!(:follow) { create(:follow, follower: user, followed: followed) }
 
-  subject(:do_request) { get "/api/v1/follows", headers: auth_headers(user) }
+  subject(:do_request) { get "/api/v1/me/following", headers: auth_headers(user) }
 
   before { do_request }
 
@@ -85,12 +85,12 @@ RSpec.describe("GET /api/v1/follows", type: :request) do
   end
 end
 
-RSpec.describe("GET /api/v1/followers", type: :request) do
+RSpec.describe("GET /api/v1/me/followers", type: :request) do
   let(:user) { create(:user) }
   let(:follower) { create(:user) }
   let!(:follow) { create(:follow, follower: follower, followed: user) }
 
-  subject(:do_request) { get "/api/v1/followers", headers: auth_headers(user) }
+  subject(:do_request) { get "/api/v1/me/followers", headers: auth_headers(user) }
 
   before { do_request }
 

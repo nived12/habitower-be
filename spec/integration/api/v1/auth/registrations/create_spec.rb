@@ -2,9 +2,9 @@
 
 require "swagger_helper"
 
-RSpec.describe("POST /api/v1/auth/sign_up", type: :request) do
-  path "/api/v1/auth/sign_up" do
-    post "Sign up" do
+RSpec.describe("POST /api/v1/users", type: :request) do
+  path "/api/v1/users" do
+    post "Create user (sign up)" do
       tags "Authentication"
       consumes "application/json"
       produces "application/json"

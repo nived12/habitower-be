@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe("POST /api/v1/auth/sign_up", type: :request) do
+RSpec.describe("POST /api/v1/users", type: :request) do
   let(:valid_params) do
     { user: { email: "user@example.com", password: "password123", password_confirmation: "password123" } }
   end
 
   subject(:do_request) do
-    post "/api/v1/auth/sign_up", params: request_params.to_json, headers: json_headers
+    post "/api/v1/users", params: request_params.to_json, headers: json_headers
   end
 
   context "with valid params" do
@@ -32,7 +32,7 @@ RSpec.describe("POST /api/v1/auth/sign_up", type: :request) do
     it "persists the user" do
       expect {
         post(
-          "/api/v1/auth/sign_up",
+          "/api/v1/users",
           params: { user: { email: "new@example.com", password: "password123",
 password_confirmation: "password123" } }.to_json,
           headers: json_headers

@@ -3,7 +3,8 @@
 module Api
   module V1
     class FeedController < BaseController
-      def index
+      # GET /api/v1/feed
+      def show
         result = Feed::Fetcher.call(
           user: current_user,
           scope: params[:scope].presence || "all",
@@ -18,6 +19,7 @@ module Api
 
         @feed = result.payload[:feed]
         @meta = result.payload[:meta]
+        render(:index)
       end
     end
   end

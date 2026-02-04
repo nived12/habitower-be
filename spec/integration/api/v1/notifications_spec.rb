@@ -30,12 +30,12 @@ RSpec.describe("Notifications API", type: :request) do
     end
   end
 
-  path "/api/v1/notifications/{id}/read" do
+  path "/api/v1/notifications/{id}" do
     parameter name: :id, in: :path, type: :integer, required: true, description: "Notification ID"
     let(:notification) { create(:notification, recipient: user, actor: create(:user), action: "high_five") }
     let(:id) { notification.id }
 
-    post "Mark notification as read" do
+    patch "Mark notification as read" do
       tags "Notifications"
       security [bearer_auth: []]
       produces "application/json"

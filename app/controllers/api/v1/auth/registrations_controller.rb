@@ -15,6 +15,7 @@ module Api
           )
         end
 
+        # POST /api/v1/users
         def respond_with(resource, _opts = {})
           if resource.persisted?
             @user = resource
