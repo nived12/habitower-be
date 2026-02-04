@@ -283,6 +283,18 @@ paths:
         description: Bearer JWT
         schema:
           type: string
+      - name: category_id
+        in: query
+        required: false
+        description: Filter by category ID
+        schema:
+          type: integer
+      - name: category_slug
+        in: query
+        required: false
+        description: Filter by category slug
+        schema:
+          type: string
       responses:
         '200':
           description: success
@@ -303,7 +315,7 @@ paths:
           type: string
       responses:
         '201':
-          description: created
+          description: created with categories
         '422':
           description: validation error
         '401':
@@ -335,6 +347,11 @@ paths:
                       - public
                       - private
                       example: public
+                    category_ids:
+                      type: array
+                      items:
+                        type: integer
+                      description: Category IDs to assign (e.g. [1, 2])
                     rules:
                       type: object
                       example: {}
@@ -385,7 +402,7 @@ paths:
           type: string
       responses:
         '200':
-          description: success
+          description: success with category_ids
         '403':
           description: forbidden (not owner)
         '404':
@@ -413,6 +430,11 @@ paths:
                       enum:
                       - public
                       - private
+                    category_ids:
+                      type: array
+                      items:
+                        type: integer
+                      description: Category IDs to assign (replaces existing)
                     rules:
                       type: object
               required:

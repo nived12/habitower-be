@@ -40,6 +40,19 @@ RSpec.describe("PATCH /api/v1/challenges/:id", type: :request) do
         expect(response).to(have_http_status(:unprocessable_content))
       end
     end
+
+    context "with category_ids" do
+      let(:category) { create(:category, name: "Fitness", slug: "fitness") }
+      let(:request_params) { { challenge: { category_ids: [category.id] } } }
+
+      before { do_request }
+
+      it "updates the challenge categories" do
+        expect(challenge.reload.categories).to(include(category))
+        expect(parsed_body["categories"].size).to(eq(1))
+        expect(parsed_body["categories"].first["slug"]).to(eq("fitness"))
+      end
+    end
   end
 
   context "when user is not the creator" do

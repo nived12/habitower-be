@@ -12,6 +12,8 @@ RSpec.describe("Challenges API", type: :request) do
       security [bearer_auth: []]
       produces "application/json"
       parameter name: :Authorization, in: :header, type: :string, required: true, description: "Bearer JWT"
+      parameter name: :category_id, in: :query, type: :integer, required: false, description: "Filter by category ID"
+      parameter name: :category_slug, in: :query, type: :string, required: false, description: "Filter by category slug"
 
       response "200", "success" do
         let!(:challenge) { create(:challenge, creator: user) }
@@ -45,6 +47,8 @@ RSpec.describe("Challenges API", type: :request) do
               description: { type: :string, example: "Build healthy exercise habits" },
               period_type: { type: :string, enum: %w[weekly monthly], example: "weekly" },
               privacy_type: { type: :string, enum: %w[public private], example: "public" },
+              category_ids: { type: :array, items: { type: :integer },
+description: "Category IDs to assign (e.g. [1, 2])" },
               rules: { type: :object, example: {} }
             },
             required: %w[title]
@@ -60,6 +64,18 @@ RSpec.describe("Challenges API", type: :request) do
           data = JSON.parse(response.body)
           expect(data["title"]).to(eq("Test Challenge"))
           expect(data["creator_id"]).to(eq(user.id))
+          expect(data).to(have_key("categories"))
+        end
+      end
+
+      response "201", "created with categories" do
+        let(:category) { create(:category, name: "Fitness", slug: "fitness") }
+        let(:challenge) { { challenge: { title: "Fitness Challenge", category_ids: [category.id] } } }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["categories"]).to(be_an(Array))
+          expect(data["categories"].first["slug"]).to(eq("fitness"))
         end
       end
 
@@ -93,6 +109,8 @@ RSpec.describe("Challenges API", type: :request) do
           data = JSON.parse(response.body)
           expect(data["id"]).to(eq(challenge.id))
           expect(data["title"]).to(eq(challenge.title))
+          expect(data).to(have_key("categories"))
+          expect(data["categories"]).to(be_an(Array))
         end
       end
 
@@ -125,6 +143,8 @@ RSpec.describe("Challenges API", type: :request) do
               description: { type: :string },
               period_type: { type: :string, enum: %w[weekly monthly] },
               privacy_type: { type: :string, enum: %w[public private] },
+              category_ids: { type: :array, items: { type: :integer },
+description: "Category IDs to assign (replaces existing)" },
               rules: { type: :object }
             }
           }
@@ -140,6 +160,19 @@ RSpec.describe("Challenges API", type: :request) do
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data["title"]).to(eq("Updated Title"))
+        end
+      end
+
+      response "200", "success with category_ids" do
+        let(:challenge) { create(:challenge, creator: user) }
+        let(:category) { create(:category, name: "Fitness", slug: "fitness") }
+        let(:id) { challenge.id }
+        let(:challenge_params) { { challenge: { category_ids: [category.id] } } }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["categories"]).to(be_an(Array))
+          expect(data["categories"].first["slug"]).to(eq("fitness"))
         end
       end
 

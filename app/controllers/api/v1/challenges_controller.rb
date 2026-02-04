@@ -50,17 +50,21 @@ module Api
       end
 
       def challenge_params
-        params.require(:challenge).permit(:title, :description, :period_type, :privacy_type, rules: {})
+        params.require(:challenge).permit(
+          :title, :description, :period_type, :privacy_type, { category_ids: [] },
+          rules: {}
+        )
       end
 
       def filter_by_category(scope)
+        scope = scope.joins(:categories).distinct
         if params[:category_id].present?
-          scope.joins(:categories).where(categories: { id: params[:category_id] })
+          scope.where(categories: { id: params[:category_id] })
         elsif params[:category_slug].present?
-          scope.joins(:categories).where(categories: { slug: params[:category_slug] })
+          scope.where(categories: { slug: params[:category_slug] })
         else
           scope
-        end.distinct
+        end
       end
     end
   end
