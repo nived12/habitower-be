@@ -1,9 +1,9 @@
 # CONTEXT.md: Habitower Backend
 
-**Purpose:** Implementation guide — how to write and structure code. For product overview, data model, and roadmap, see **README.md**.
+**Purpose:** Implementation guide — how to write and structure code. **README.md** describes what the project is and how to run it (setup, env vars, CI). API behaviour and endpoints are documented in Swagger at `/api-docs`.
 
 ## Tech Stack
-Rails 8.x (API Mode), PostgreSQL, RSpec, Devise + JWT, Discard, Factory Bot.
+Rails 8.x (API Mode), PostgreSQL, RSpec, Devise + JWT, Discard, Factory Bot. Jbuilder for JSON; RSwag for OpenAPI; Pundit for authorization. Optional: Google Cloud Storage (signed URLs) via credentials or `GCS_BUCKET`.
 
 ## Architecture
 - **SOLID & Services:** Business logic in `app/services`; controllers handle routing/params.
