@@ -49,7 +49,6 @@ module Api
         @reacted_by_me = progress_log.reactions.where(user_id: current_user.id).pluck(:kind)
         @reactions_count = progress_log.reactions.count
         @reactions_by_kind = progress_log.reactions.group(:kind).count
-        render(:react, status: :ok)
       end
 
       private

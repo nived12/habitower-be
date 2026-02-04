@@ -34,7 +34,9 @@ RSpec.describe("GET /api/v1/challenges/:id", type: :request) do
   context "with a challenge that has categories" do
     let(:challenge_template) { create(:challenge_template, creator: other_user) }
     let!(:category) { create(:category, name: "Fitness", slug: "fitness") }
-    let!(:challenge_template_category) { create(:challenge_template_category, challenge_template: challenge_template, category: category) }
+    let!(:challenge_template_category) do
+      create(:challenge_template_category, challenge_template: challenge_template, category: category)
+    end
 
     before { do_request }
 

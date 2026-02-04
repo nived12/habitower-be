@@ -5,7 +5,6 @@ module Api
     class CategoriesController < BaseController
       def index
         @categories = Category.order(:name)
-        render(:index, status: :ok)
       end
     end
   end

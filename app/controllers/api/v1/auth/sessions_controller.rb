@@ -11,7 +11,7 @@ module Api
         def respond_with(resource, _opts = {})
           @user = resource
           @refresh_token = create_refresh_token_for(resource)
-          render(:create, status: :ok)
+          render(:create)
         end
 
         def respond_to_on_destroy(_resource)

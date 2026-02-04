@@ -51,7 +51,6 @@ module Api
           return
         end
         @active_stack_items = result.payload
-        render(:active_stack, status: :ok)
       end
 
       def integrity
@@ -64,7 +63,6 @@ module Api
           return
         end
         @integrity_score = result.payload
-        render(:integrity, status: :ok)
       end
 
       private

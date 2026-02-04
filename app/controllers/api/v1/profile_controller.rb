@@ -7,7 +7,6 @@ module Api
         @user = current_user
         result = Stats::Calculator.call(user: current_user)
         @stats = result.success? ? result.payload : {}
-        render(:show, status: :ok)
       end
 
       def update

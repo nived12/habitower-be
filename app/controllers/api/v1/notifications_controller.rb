@@ -19,7 +19,6 @@ module Api
           per_page: per_page,
           total: current_user.notifications.count
         }
-        render(:index, status: :ok)
       end
 
       def read

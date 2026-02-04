@@ -18,7 +18,6 @@ module Api
 
         @feed = result.payload[:feed]
         @meta = result.payload[:meta]
-        render(:index, status: :ok)
       end
     end
   end

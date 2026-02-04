@@ -6,13 +6,11 @@ module Api
       def index
         @users = current_user.followed_users
           .order("follows.created_at DESC")
-        render(:index, status: :ok)
       end
 
       def followers
         @users = current_user.follower_users
           .order("follows.created_at DESC")
-        render(:followers, status: :ok)
       end
 
       def create

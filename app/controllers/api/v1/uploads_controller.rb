@@ -32,7 +32,6 @@ module Api
 
         @url = result.payload[:url]
         @object_key = result.payload[:object_key]
-        render(:signed_url, status: :ok)
       end
     end
   end
