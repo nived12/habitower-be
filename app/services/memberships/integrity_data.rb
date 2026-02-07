@@ -19,14 +19,14 @@ module Memberships
         score_result = IntegrityScoreCalculator.call(
           membership: membership,
           reference_date: ref,
-          timezone: timezone,
+          timezone: timezone
         )
         next unless score_result.success?
 
         ghost_result = GhostTowerBuilder.call(
           membership: membership,
           reference_date: ref,
-          timezone: timezone,
+          timezone: timezone
         )
         next unless ghost_result.success?
 

@@ -23,7 +23,7 @@ module Api
           bucket_name: bucket,
           object_key: object_key,
           method: :put,
-          content_type: content_type,
+          content_type: content_type
         )
 
         if result.failure?

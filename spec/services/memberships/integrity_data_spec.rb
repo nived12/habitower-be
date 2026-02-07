@@ -17,7 +17,7 @@ RSpec.describe(Memberships::IntegrityData) do
       described_class.for_batch(
         memberships,
         timezone: "UTC",
-        reference_date: Date.current,
+        reference_date: Date.current
       )
     end
 

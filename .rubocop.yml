@@ -132,3 +132,19 @@ Layout/BlockAlignment:
 Layout/MultilineBlockLayout:
   Enabled: true
   AutoCorrect: true
+
+# No trailing commas in arguments, hashes, or arrays
+Style/TrailingCommaInArguments:
+  Enabled: true
+  EnforcedStyleForMultiline: no_comma
+  AutoCorrect: true
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: true
+  EnforcedStyleForMultiline: no_comma
+  AutoCorrect: true
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: true
+  EnforcedStyleForMultiline: no_comma
+  AutoCorrect: true

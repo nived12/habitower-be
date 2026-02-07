@@ -61,7 +61,7 @@ module Api
               { status: status_code, source: { pointer: "/data" }, detail: detail }
             ]
           },
-          status: http_status,
+          status: http_status
         )
       end
 

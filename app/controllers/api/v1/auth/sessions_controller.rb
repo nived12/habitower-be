@@ -24,7 +24,7 @@ module Api
         def create_refresh_token_for(user)
           user.refresh_tokens.create!(
             token: SecureRandom.urlsafe_base64(32),
-            expires_at: 30.days.from_now,
+            expires_at: 30.days.from_now
           )
         end
 

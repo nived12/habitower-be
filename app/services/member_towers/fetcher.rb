@@ -31,7 +31,7 @@ module MemberTowers
       integrity_data = Memberships::IntegrityData.for_batch(
         page_memberships,
         timezone: timezone,
-        reference_date: reference_date,
+        reference_date: reference_date
       )
 
       member_towers = page_memberships.map do |membership|
