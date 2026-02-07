@@ -13,7 +13,7 @@ module Groups
 
     def call
       return failure("User is already a member of this group") if already_member?
-      return failure("Invalid invite code") if private_group? && !valid_invite_code?
+      return failure("Invalid invite code", http_status: :forbidden) if private_group? && !valid_invite_code?
 
       membership = find_or_create_membership
       success(membership)

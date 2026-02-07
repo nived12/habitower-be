@@ -15,6 +15,7 @@ class Notification < ApplicationRecord
 
   def actor_not_recipient
     return unless actor_id == recipient_id
+
     errors.add(:actor, "cannot be the same as recipient")
   end
 end

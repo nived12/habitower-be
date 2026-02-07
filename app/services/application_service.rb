@@ -21,7 +21,7 @@ class ApplicationService
     Response.new(success: true, payload: payload, errors: nil)
   end
 
-  def failure(error_message = nil)
+  def failure(error_message = nil, http_status: nil)
     if error_message.present?
       case error_message
       when String
@@ -33,16 +33,17 @@ class ApplicationService
 
     Rails.logger.error("#{self.class.name}: #{errors.full_messages.join(", ")}") if errors.any?
 
-    Response.new(success: false, payload: nil, errors: errors)
+    Response.new(success: false, payload: nil, errors: errors, http_status: http_status)
   end
 
   class Response
-    attr_reader :success, :payload, :errors
+    attr_reader :success, :payload, :errors, :http_status
 
-    def initialize(success:, payload:, errors:)
+    def initialize(success:, payload:, errors:, http_status: nil)
       @success = success
       @payload = payload
       @errors = errors
+      @http_status = http_status
     end
 
     def success?

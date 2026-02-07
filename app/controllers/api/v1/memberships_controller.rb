@@ -15,30 +15,23 @@ module Api
       def create
         authorize(@group, :join?)
 
-        if params[:identifier].present?
+        if membership_params[:identifier].present?
           result = Groups::MemberAdder.call(
             group: @group,
-            identifier: params[:identifier],
+            identifier: membership_params[:identifier],
             current_user: current_user,
-            role: params[:role] || "member",
+            role: membership_params[:role] || "member",
           )
         else
           result = Groups::Joiner.call(
             group: @group,
             user: current_user,
-            invite_code: params[:invite_code],
+            invite_code: membership_params[:invite_code],
           )
         end
 
         if result.failure?
-          http_status = case result.errors.full_messages.first
-          when /not found/ then :not_found
-          when /Only group admins/ then :forbidden
-          when /Invalid invite/ then :forbidden
-          else :unprocessable_content
-          end
-          status_code = http_status == :not_found ? "404" : (http_status == :forbidden ? "403" : "422")
-          render_error(status_code, result.errors.full_messages.first, http_status)
+          render_error_for_status(result.errors.full_messages.first, result.http_status || :unprocessable_content)
           return
         end
 
@@ -48,19 +41,8 @@ module Api
 
       # DELETE /api/v1/groups/:group_id/memberships/:id (leave or admin remove)
       def destroy
-        authorize(@group, :show?)
-
         membership = @group.memberships.kept.find(params[:id])
-        can_leave = membership.user_id == current_user.id
-        can_remove = @group.memberships.kept.exists?(user_id: current_user.id, role: "admin")
-        if can_leave && @group.creator_id == current_user.id
-          render_error("403", "Creator cannot leave", :forbidden)
-          return
-        end
-        unless can_leave || can_remove
-          render_error("403", "Only group admins can remove other members", :forbidden)
-          return
-        end
+        authorize(membership)
 
         membership.discard!
         head(:no_content)
@@ -72,10 +54,8 @@ module Api
           membership: @membership,
           user_timezone: params[:user_timezone].presence || "UTC",
         )
-        if result.failure?
-          render_error("422", result.errors.full_messages.first, :unprocessable_content)
-          return
-        end
+        return if render_service_failure(result)
+
         @active_stack_items = result.payload
       end
 
@@ -85,10 +65,8 @@ module Api
           membership: @membership,
           timezone: params[:user_timezone].presence || "UTC",
         )
-        if result.failure?
-          render_error("422", result.errors.full_messages.first, :unprocessable_content)
-          return
-        end
+        return if render_service_failure(result)
+
         @integrity_score = result.payload
       end
 
@@ -96,6 +74,17 @@ module Api
 
       def set_group
         @group = Group.kept.find(params[:group_id])
+      end
+
+      def membership_params
+        params.permit(:identifier, :invite_code, :role)
+      end
+
+      def render_service_failure(result)
+        return false unless result.failure?
+
+        render_error_for_status(result.errors.full_messages.first, :unprocessable_content)
+        true
       end
 
       def set_membership_for_member_routes
