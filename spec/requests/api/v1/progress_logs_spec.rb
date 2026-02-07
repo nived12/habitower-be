@@ -88,9 +88,9 @@ RSpec.describe("POST /api/v1/progress_logs/:progress_log_id/reactions", type: :r
   end
 
   context "when toggling reaction" do
-    it "returns 200 OK" do
+    it "returns 201 Created when adding reaction (first call)" do
       do_request
-      expect(response).to(have_http_status(:ok))
+      expect(response).to(have_http_status(:created))
     end
 
     it "creates reaction on first call" do

@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 module Memberships
-  class IntegrityCalculator < ApplicationService
+  # Computes a 0–100 integrity score for a membership over a lookback window:
+  # expected vs actual progress logs per step, with penalties for missing logs.
+  class IntegrityScoreCalculator < ApplicationService
+    include PeriodForGroup
+
     LOOKBACK_DAYS = 14
     BASE_PENALTY = 5.0
-    GHOST_TOWER_SIZE = 3
 
     attr_reader :membership, :reference_date, :timezone
 
@@ -16,11 +19,6 @@ module Memberships
     end
 
     def call
-      result = call_with_ghost_tower
-      result.success? ? success(result.payload[:score]) : result
-    end
-
-    def call_with_ghost_tower
       group = membership.group
       end_date = reference_date
       start_date = end_date - (LOOKBACK_DAYS - 1).days
@@ -40,35 +38,10 @@ module Memberships
       score = (100.0 - total_penalty).round(2)
       score = [[score, 0].max, 100].min
 
-      ghost_tower = build_ghost_tower(active_steps, end_date)
-
-      success(score: score, ghost_tower: ghost_tower)
-    end
-
-    class << self
-      def batch(memberships, timezone: "UTC", reference_date: nil)
-        ref = reference_date || Date.current
-        result = {}
-        memberships.each do |m|
-          calc = new(membership: m, reference_date: ref, timezone: timezone)
-          out = calc.call_with_ghost_tower
-          result[m.id] = out.payload if out.success?
-        end
-        result
-      end
+      success(score)
     end
 
     private
-
-    def current_period_for_group(group, on_date)
-      return 0 if group.start_date > on_date
-
-      if group.challenge_template.weekly?
-        ((on_date - group.start_date).to_i / 7) + 1
-      else
-        (on_date.year * 12 + on_date.month) - (group.start_date.year * 12 + group.start_date.month) + 1
-      end
-    end
 
     def expected_logs_for_step(step)
       freq = step.requirements["frequency"] || step.requirements["frequency_per_week"] || "daily"
@@ -87,21 +60,6 @@ module Memberships
         .where(group_step_id: step.id)
         .where(occurred_at: start_time..end_time)
         .count
-    end
-
-    def build_ghost_tower(active_steps, end_date)
-      steps_to_show = active_steps.last(GHOST_TOWER_SIZE)
-      start_time = end_date.in_time_zone(timezone).beginning_of_day.utc
-      end_time = end_date.in_time_zone(timezone).end_of_day.utc
-
-      steps_to_show.map do |step|
-        has_log = membership.progress_logs.kept
-          .where(group_step_id: step.id)
-          .where(occurred_at: start_time..end_time)
-          .exists?
-        status = has_log ? "completed" : "missed"
-        { position: step.position, status: status }
-      end
     end
   end
 end

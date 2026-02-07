@@ -19,7 +19,7 @@ module Api
         if @include_members
           @members = @group.memberships.kept.includes(:user)
           timezone = params[:user_timezone].presence || "UTC"
-          @integrity_data = Memberships::IntegrityCalculator.batch(@members, timezone: timezone)
+          @integrity_data = Memberships::IntegrityData.for_batch(@members, timezone: timezone)
         end
       end
 

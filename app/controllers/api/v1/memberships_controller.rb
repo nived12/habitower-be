@@ -13,7 +13,7 @@ module Api
 
       # POST /api/v1/groups/:group_id/memberships (join with invite_code, or admin add with identifier)
       def create
-        authorize(@group, :show?)
+        authorize(@group, :join?)
 
         if params[:identifier].present?
           result = Groups::MemberAdder.call(
@@ -81,7 +81,7 @@ module Api
 
       # GET /api/v1/groups/:group_id/memberships/:id/integrity
       def integrity
-        result = Memberships::IntegrityCalculator.call(
+        result = Memberships::IntegrityScoreCalculator.call(
           membership: @membership,
           timezone: params[:user_timezone].presence || "UTC",
         )

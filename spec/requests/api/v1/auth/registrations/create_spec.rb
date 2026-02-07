@@ -8,7 +8,7 @@ RSpec.describe("POST /api/v1/users", type: :request) do
   end
 
   subject(:do_request) do
-    post "/api/v1/users", params: request_params.to_json, headers: json_headers
+    post "/api/v1/users", params: request_params, as: :json, headers: json_headers
   end
 
   context "with valid params" do
@@ -34,7 +34,8 @@ RSpec.describe("POST /api/v1/users", type: :request) do
         post(
           "/api/v1/users",
           params: { user: { email: "new@example.com", password: "password123",
-password_confirmation: "password123" } }.to_json,
+password_confirmation: "password123" } },
+          as: :json,
           headers: json_headers
         )
       }.to(change(User, :count).by(1))

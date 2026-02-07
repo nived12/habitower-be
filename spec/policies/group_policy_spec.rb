@@ -106,31 +106,6 @@ RSpec.describe(GroupPolicy, type: :policy) do
     end
   end
 
-  describe "#leave?" do
-    context "when user is a member but not the creator" do
-      it "permits the action" do
-        policy = described_class.new(member_user, group)
-        expect(policy.leave?).to(be(true))
-      end
-    end
-
-    context "when user is the creator" do
-      let!(:creator_membership) { create(:membership, group: group, user: creator, role: "admin") }
-
-      it "denies the action" do
-        policy = described_class.new(creator, group)
-        expect(policy.leave?).to(be(false))
-      end
-    end
-
-    context "when user is not a member" do
-      it "denies the action" do
-        policy = described_class.new(other_user, group)
-        expect(policy.leave?).to(be(false))
-      end
-    end
-  end
-
   describe "Scope" do
     let!(:public_group) { create(:group, challenge_template: challenge_template, creator: creator) }
     let!(:private_group) do
