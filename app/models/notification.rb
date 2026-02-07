@@ -6,9 +6,17 @@ class Notification < ApplicationRecord
   belongs_to :notifiable, polymorphic: true, optional: true
 
   validates :action, presence: true
+  validate :actor_not_recipient, if: -> { actor_id.present? }
 
   scope :unread, -> { where(read_at: nil) }
   scope :for_recipient, ->(user) { where(recipient_id: user.id) }
+
+  private
+
+  def actor_not_recipient
+    return unless actor_id == recipient_id
+    errors.add(:actor, "cannot be the same as recipient")
+  end
 end
 
 # == Schema Information

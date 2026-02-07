@@ -16,12 +16,11 @@ class Reaction < ApplicationRecord
     owner = progress_log.membership.user
     return if user_id == owner.id
 
-    Notifications::Creator.call(
+    Notification.create!(
       recipient: owner,
       actor: user,
       action: kind,
-      notifiable: progress_log,
-      data: {}
+      notifiable: progress_log
     )
   end
 end
