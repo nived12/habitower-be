@@ -20,13 +20,13 @@ module Api
             group: @group,
             identifier: membership_params[:identifier],
             current_user: current_user,
-            role: membership_params[:role] || "member",
+            role: membership_params[:role] || "member"
           )
         else
           result = Groups::Joiner.call(
             group: @group,
             user: current_user,
-            invite_code: membership_params[:invite_code],
+            invite_code: membership_params[:invite_code]
           )
         end
 
@@ -52,7 +52,7 @@ module Api
       def active_stack
         result = Groups::ActiveStackFetcher.call(
           membership: @membership,
-          user_timezone: params[:user_timezone].presence || "UTC",
+          user_timezone: params[:user_timezone].presence || "UTC"
         )
         return if render_service_failure(result)
 
@@ -63,7 +63,7 @@ module Api
       def integrity
         result = Memberships::IntegrityScoreCalculator.call(
           membership: @membership,
-          timezone: params[:user_timezone].presence || "UTC",
+          timezone: params[:user_timezone].presence || "UTC"
         )
         return if render_service_failure(result)
 

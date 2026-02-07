@@ -38,7 +38,7 @@ module Groups
         privacy_type: privacy_type,
         start_date: calculated_start_date,
         invite_code: generate_invite_code,
-        title: title,
+        title: title
       )
     end
 

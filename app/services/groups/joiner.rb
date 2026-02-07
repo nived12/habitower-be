@@ -43,7 +43,7 @@ module Groups
         Membership.create!(
           group: group,
           user: user,
-          role: "member",
+          role: "member"
         )
       end
     end

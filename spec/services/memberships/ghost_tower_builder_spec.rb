@@ -16,7 +16,7 @@ RSpec.describe(Memberships::GhostTowerBuilder) do
       described_class.call(
         membership: membership,
         reference_date: reference_date,
-        timezone: timezone,
+        timezone: timezone
       )
     end
 
@@ -44,7 +44,7 @@ RSpec.describe(Memberships::GhostTowerBuilder) do
           :progress_log,
           membership: membership,
           group_step: group_step,
-          occurred_at: reference_date.in_time_zone(timezone).noon,
+          occurred_at: reference_date.in_time_zone(timezone).noon
         )
       end
 

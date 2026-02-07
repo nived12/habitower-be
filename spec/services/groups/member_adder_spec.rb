@@ -17,7 +17,7 @@ RSpec.describe(Groups::MemberAdder) do
           described_class.call(
             group: group,
             identifier: target_user.email,
-            current_user: admin,
+            current_user: admin
           )
         end
 
@@ -42,7 +42,7 @@ RSpec.describe(Groups::MemberAdder) do
           described_class.call(
             group: group,
             identifier: target_user.username,
-            current_user: admin,
+            current_user: admin
           )
         end
 
@@ -54,7 +54,7 @@ RSpec.describe(Groups::MemberAdder) do
           result = described_class.call(
             group: group,
             identifier: target_user.username.upcase,
-            current_user: admin,
+            current_user: admin
           )
 
           expect(result.payload.user).to(eq(target_user))
@@ -67,7 +67,7 @@ RSpec.describe(Groups::MemberAdder) do
             group: group,
             identifier: target_user.email,
             current_user: admin,
-            role: "admin",
+            role: "admin"
           )
         end
 
@@ -81,7 +81,7 @@ RSpec.describe(Groups::MemberAdder) do
           result = described_class.call(
             group: group,
             identifier: "nonexistent@example.com",
-            current_user: admin,
+            current_user: admin
           )
 
           expect(result.failure?).to(be(true))
@@ -96,7 +96,7 @@ RSpec.describe(Groups::MemberAdder) do
           result = described_class.call(
             group: group,
             identifier: target_user.email,
-            current_user: admin,
+            current_user: admin
           )
 
           expect(result.failure?).to(be(true))
@@ -114,7 +114,7 @@ RSpec.describe(Groups::MemberAdder) do
           result = described_class.call(
             group: group,
             identifier: target_user.email,
-            current_user: admin,
+            current_user: admin
           )
 
           expect(result.success?).to(be(true))
@@ -130,7 +130,7 @@ RSpec.describe(Groups::MemberAdder) do
         result = described_class.call(
           group: group,
           identifier: target_user.email,
-          current_user: member,
+          current_user: member
         )
 
         expect(result.failure?).to(be(true))
@@ -145,7 +145,7 @@ RSpec.describe(Groups::MemberAdder) do
         result = described_class.call(
           group: group,
           identifier: target_user.email,
-          current_user: non_member,
+          current_user: non_member
         )
 
         expect(result.failure?).to(be(true))

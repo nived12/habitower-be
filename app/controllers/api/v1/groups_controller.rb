@@ -32,7 +32,7 @@ module Api
           creator: current_user,
           privacy_type: group_params[:privacy_type] || "public",
           start_date: group_params[:start_date],
-          title: group_params[:title],
+          title: group_params[:title]
         )
 
         if result.failure?

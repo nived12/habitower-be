@@ -27,7 +27,7 @@ module Storage
         method: method,
         expires: expires_in.from_now.to_i,
         content_type: content_type,
-        version: :v4,
+        version: :v4
       )
 
       success(url: url, object_key: object_key)

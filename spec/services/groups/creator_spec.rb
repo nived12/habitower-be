@@ -117,7 +117,7 @@ RSpec.describe(Groups::Creator) do
         result = described_class.call(
           challenge_template: challenge_template,
           creator: user,
-          start_date: custom_date,
+          start_date: custom_date
         )
 
         expect(result.payload.start_date).to(eq(custom_date))
@@ -129,7 +129,7 @@ RSpec.describe(Groups::Creator) do
         described_class.call(
           challenge_template: challenge_template,
           creator: user,
-          privacy_type: "private",
+          privacy_type: "private"
         )
       end
 
@@ -151,7 +151,7 @@ RSpec.describe(Groups::Creator) do
           described_class.call(
             challenge_template: challenge_template,
             creator: user,
-            privacy_type: "private",
+            privacy_type: "private"
           ).payload.invite_code
         end
 
