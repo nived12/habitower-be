@@ -4,9 +4,31 @@ info:
   title: Habitower API V1
   version: v1
 paths:
-  "/api/v1/auth/sign_up":
+  "/api/v1/sessions/refresh":
     post:
-      summary: Sign up
+      summary: Refresh access token
+      tags:
+      - Authentication
+      parameters: []
+      responses:
+        '200':
+          description: ok
+        '401':
+          description: invalid refresh token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  description: Valid refresh token from login
+              required:
+              - refresh_token
+  "/api/v1/users":
+    post:
+      summary: Create user (sign up)
       tags:
       - Authentication
       parameters: []
@@ -49,9 +71,9 @@ paths:
                   - password_confirmation
               required:
               - user
-  "/api/v1/auth/login":
+  "/api/v1/sessions":
     post:
-      summary: Login
+      summary: Create session (login)
       tags:
       - Authentication
       parameters: []
@@ -80,7 +102,6 @@ paths:
                   - password
               required:
               - user
-  "/api/v1/auth/logout":
     delete:
       summary: Logout
       tags:
@@ -97,6 +118,23 @@ paths:
       responses:
         '200':
           description: ok
+  "/api/v1/categories":
+    get:
+      summary: List categories
+      tags:
+      - Categories
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
   "/api/v1/challenges/{challenge_id}/challenge_steps":
     parameters:
     - name: challenge_id
@@ -266,6 +304,18 @@ paths:
         description: Bearer JWT
         schema:
           type: string
+      - name: category_id
+        in: query
+        required: false
+        description: Filter by category ID
+        schema:
+          type: integer
+      - name: category_slug
+        in: query
+        required: false
+        description: Filter by category slug
+        schema:
+          type: string
       responses:
         '200':
           description: success
@@ -286,7 +336,7 @@ paths:
           type: string
       responses:
         '201':
-          description: created
+          description: created with categories
         '422':
           description: validation error
         '401':
@@ -318,6 +368,11 @@ paths:
                       - public
                       - private
                       example: public
+                    category_ids:
+                      type: array
+                      items:
+                        type: integer
+                      description: Category IDs to assign (e.g. [1, 2])
                     rules:
                       type: object
                       example: {}
@@ -368,7 +423,7 @@ paths:
           type: string
       responses:
         '200':
-          description: success
+          description: success with category_ids
         '403':
           description: forbidden (not owner)
         '404':
@@ -396,6 +451,11 @@ paths:
                       enum:
                       - public
                       - private
+                    category_ids:
+                      type: array
+                      items:
+                        type: integer
+                      description: Category IDs to assign (replaces existing)
                     rules:
                       type: object
               required:
@@ -420,6 +480,147 @@ paths:
           description: forbidden (not owner)
         '404':
           description: not found
+  "/api/v1/devices":
+    post:
+      summary: Register or update a device for push notifications
+      tags:
+      - Devices
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+        '200':
+          description: updated (existing device)
+        '422':
+          description: token required
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                platform:
+                  type: string
+                  enum:
+                  - ios
+                  - android
+                  example: ios
+                token:
+                  type: string
+                  description: Device push token (APNs/FCM)
+              required:
+              - platform
+              - token
+  "/api/v1/feed":
+    get:
+      summary: Get current user feed
+      tags:
+      - Feed
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      - name: scope
+        in: query
+        required: false
+        enum:
+        - all
+        - mine
+        - friends
+        description: "Feed scope:\n * `all` \n * `mine` \n * `friends` \n "
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+  "/api/v1/me/following":
+    get:
+      summary: List users the current user follows
+      tags:
+      - Follows
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+  "/api/v1/follows":
+    post:
+      summary: Follow a user
+      tags:
+      - Follows
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                followed_id:
+                  type: integer
+              required:
+              - followed_id
+  "/api/v1/me/followers":
+    get:
+      summary: List followers of the current user
+      tags:
+      - Follows
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
   "/api/v1/groups":
     get:
       summary: List groups
@@ -565,16 +766,172 @@ paths:
           description: no content
         '403':
           description: forbidden (not owner)
-  "/api/v1/groups/{id}/join":
+  "/api/v1/groups/{group_id}/member-towers":
     parameters:
-    - name: id
+    - name: group_id
       in: path
       required: true
       description: Group ID
       schema:
         type: integer
+    get:
+      summary: List member towers (paginated, current user first)
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
+      - name: date
+        in: query
+        required: false
+        description: Reference date (ISO) for ghost tower
+        schema:
+          type: string
+      - name: user_timezone
+        in: query
+        required: false
+        description: User timezone (e.g. UTC)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+        '404':
+          description: group not found
+  "/api/v1/groups/{group_id}/memberships/{id}/active-stack":
+    parameters:
+    - name: group_id
+      in: path
+      required: true
+      description: Group ID
+      schema:
+        type: integer
+    - name: id
+      in: path
+      required: true
+      description: Membership ID
+      schema:
+        type: integer
+    get:
+      summary: Get membership active stack (today steps)
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      - name: user_timezone
+        in: query
+        required: false
+        description: User timezone
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+        '404':
+          description: membership not in group
+  "/api/v1/groups/{group_id}/memberships/{id}/integrity":
+    parameters:
+    - name: group_id
+      in: path
+      required: true
+      description: Group ID
+      schema:
+        type: integer
+    - name: id
+      in: path
+      required: true
+      description: Membership ID
+      schema:
+        type: integer
+    get:
+      summary: Get membership integrity score
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      - name: user_timezone
+        in: query
+        required: false
+        description: User timezone
+        schema:
+          type: string
+      - name: date
+        in: query
+        required: false
+        description: Reference date (ISO)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+  "/api/v1/groups/{group_id}/memberships":
+    parameters:
+    - name: group_id
+      in: path
+      required: true
+      description: Group ID
+      schema:
+        type: integer
+    get:
+      summary: List group memberships
+      tags:
+      - Groups
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+        '404':
+          description: group not found
     post:
-      summary: Join a group
+      summary: Create membership (join with invite_code, or admin add with identifier)
       tags:
       - Groups
       security:
@@ -588,31 +945,47 @@ paths:
           type: string
       responses:
         '201':
-          description: joined successfully
+          description: created
         '403':
           description: invalid invite code
         '422':
           description: already a member
+        '401':
+          description: unauthorized
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
+                identifier:
+                  type: string
+                  description: Email or username (admin add only)
                 invite_code:
                   type: string
-                  example: ABC123
-                  description: Required for private groups
-  "/api/v1/groups/{id}/leave":
+                  description: Required for private groups when joining
+                role:
+                  type: string
+                  enum:
+                  - member
+                  - admin
+                  example: member
+  "/api/v1/groups/{group_id}/memberships/{id}":
     parameters:
-    - name: id
+    - name: group_id
       in: path
       required: true
       description: Group ID
       schema:
         type: integer
+    - name: id
+      in: path
+      required: true
+      description: Membership ID
+      schema:
+        type: integer
     delete:
-      summary: Leave a group
+      summary: Remove a member or leave (admin or own membership)
       tags:
       - Groups
       security:
@@ -626,9 +999,246 @@ paths:
           type: string
       responses:
         '204':
-          description: left successfully
+          description: no content
         '403':
           description: forbidden (creator cannot leave)
+        '401':
+          description: unauthorized
+  "/api/v1/notifications":
+    get:
+      summary: List notifications
+      tags:
+      - Notifications
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+  "/api/v1/notifications/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Notification ID
+      schema:
+        type: integer
+    patch:
+      summary: Mark notification as read
+      tags:
+      - Notifications
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+  "/api/v1/notifications/read_all":
+    post:
+      summary: Mark all notifications as read
+      tags:
+      - Notifications
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+  "/api/v1/me":
+    get:
+      summary: Get current user profile and stats
+      tags:
+      - Profile
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+    patch:
+      summary: Update current user profile
+      tags:
+      - Profile
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                avatar_url:
+                  type: string
+                bio:
+                  type: string
+                timezone:
+                  type: string
+  "/api/v1/progress_logs":
+    post:
+      summary: Create a progress log
+      tags:
+      - Progress Logs
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '201':
+          description: created
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_step_id:
+                  type: integer
+                value:
+                  type: number
+                occurred_at:
+                  type: string
+                  format: date-time
+                note:
+                  type: string
+                proof_url:
+                  type: string
+              required:
+              - group_step_id
+              - value
+  "/api/v1/progress_logs/{progress_log_id}/reactions":
+    parameters:
+    - name: progress_log_id
+      in: path
+      required: true
+      description: Progress log ID
+      schema:
+        type: integer
+    post:
+      summary: Create or toggle reaction on a progress log
+      tags:
+      - Progress Logs
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success (toggle off existing reaction)
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                kind:
+                  type: string
+                  enum:
+                  - high_five
+                  - nudge
+                  example: high_five
+  "/api/v1/uploads":
+    post:
+      summary: Create upload (get signed URL)
+      tags:
+      - Uploads
+      security:
+      - bearer_auth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '422':
+          description: filename required
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  example: photo.jpg
+                content_type:
+                  type: string
+                  example: image/jpeg
+              required:
+              - filename
 servers:
 - url: https://{defaultHost}
   variables:

@@ -44,6 +44,29 @@ RSpec.describe("GET /api/v1/challenges", type: :request) do
     end
   end
 
+  context "when filtering by category" do
+    let(:category) { create(:category, name: "Fitness", slug: "fitness") }
+    let!(:challenge_in_category) { create(:challenge_template, creator: other_user) }
+    let!(:challenge_template_category) do
+      create(:challenge_template_category, challenge_template: challenge_in_category, category: category)
+    end
+    let!(:challenge_not_in_category) { create(:challenge_template, creator: other_user) }
+
+    it "returns only challenges in the category when filtering by category_id" do
+      get "/api/v1/challenges", params: { category_id: category.id }, headers: auth_headers(user)
+      ids = JSON.parse(response.body).map { |c| c["id"] }
+      expect(ids).to(include(challenge_in_category.id))
+      expect(ids).not_to(include(challenge_not_in_category.id))
+    end
+
+    it "returns only challenges in the category when filtering by category_slug" do
+      get "/api/v1/challenges", params: { category_slug: category.slug }, headers: auth_headers(user)
+      ids = JSON.parse(response.body).map { |c| c["id"] }
+      expect(ids).to(include(challenge_in_category.id))
+      expect(ids).not_to(include(challenge_not_in_category.id))
+    end
+  end
+
   context "when not authenticated" do
     subject(:do_request) { get "/api/v1/challenges", headers: json_headers }
 

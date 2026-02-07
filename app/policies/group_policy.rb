@@ -26,10 +26,6 @@ class GroupPolicy < ApplicationPolicy
     true
   end
 
-  def leave?
-    member? && !owner?
-  end
-
   class Scope < ApplicationPolicy::Scope
     def resolve
       scope.left_joins(:memberships)

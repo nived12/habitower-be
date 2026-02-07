@@ -24,6 +24,27 @@ RSpec.describe("GET /api/v1/challenges/:id", type: :request) do
       expect(parsed_body["period_type"]).to(eq(challenge_template.period_type))
       expect(parsed_body["privacy_type"]).to(eq(challenge_template.privacy_type))
     end
+
+    it "returns categories array" do
+      expect(parsed_body).to(have_key("categories"))
+      expect(parsed_body["categories"]).to(be_an(Array))
+    end
+  end
+
+  context "with a challenge that has categories" do
+    let(:challenge_template) { create(:challenge_template, creator: other_user) }
+    let!(:category) { create(:category, name: "Fitness", slug: "fitness") }
+    let!(:challenge_template_category) do
+      create(:challenge_template_category, challenge_template: challenge_template, category: category)
+    end
+
+    before { do_request }
+
+    it "includes assigned categories in the response" do
+      expect(parsed_body["categories"].size).to(eq(1))
+      expect(parsed_body["categories"].first["slug"]).to(eq("fitness"))
+      expect(parsed_body["categories"].first["name"]).to(eq("Fitness"))
+    end
   end
 
   context "with a private challenge" do

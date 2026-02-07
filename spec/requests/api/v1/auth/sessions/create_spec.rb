@@ -2,13 +2,13 @@
 
 require "rails_helper"
 
-RSpec.describe("POST /api/v1/auth/login", type: :request) do
+RSpec.describe("POST /api/v1/sessions", type: :request) do
   let!(:user) do
     User.create!(email: "login@example.com", password: "password123", password_confirmation: "password123")
   end
 
   subject(:do_request) do
-    post "/api/v1/auth/login", params: request_params.to_json, headers: json_headers
+    post "/api/v1/sessions", params: request_params.to_json, headers: json_headers
   end
 
   context "with valid credentials" do

@@ -316,11 +316,11 @@ Devise.setup do |config|
     # Use credentials when available (dev/prod); fall back to secret_key_base for test/CI (no master key)
     jwt.secret = Rails.application.credentials.secret_key_base.presence || Rails.application.secret_key_base
     jwt.dispatch_requests = [
-      ["POST", %r{^/api/v1/auth/login$}],
-      ["POST", %r{^/api/v1/auth/sign_up$}],
-      ["POST", %r{^/api/v1/auth/refresh$}]
+      ["POST", %r{^/api/v1/sessions$}],
+      ["POST", %r{^/api/v1/users$}],
+      ["POST", %r{^/api/v1/sessions/refresh$}]
     ]
-    jwt.revocation_requests = [["DELETE", %r{^/api/v1/auth/logout$}]]
+    jwt.revocation_requests = [["DELETE", %r{^/api/v1/sessions$}]]
   end
 
   # ==> Warden configuration (API-only: do not store in session)

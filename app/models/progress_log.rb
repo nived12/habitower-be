@@ -7,6 +7,7 @@ class ProgressLog < ApplicationRecord
 
   belongs_to :membership
   belongs_to :group_step
+  has_many :reactions, dependent: :destroy
 end
 
 # == Schema Information

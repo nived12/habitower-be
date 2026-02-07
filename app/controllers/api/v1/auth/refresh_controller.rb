@@ -8,6 +8,7 @@ module Api
 
         before_action :validate_refresh_token!
 
+        # POST /api/v1/sessions/refresh
         def create
           @user = @refresh_token.user
           sign_in(@user, store: false)

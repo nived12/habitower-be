@@ -20,6 +20,12 @@ class User < ApplicationRecord
   has_many :groups, through: :memberships
   has_many :refresh_tokens, dependent: :destroy
   has_many :devices, dependent: :destroy
+  has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
+  has_many :reactions, dependent: :destroy
+  has_many :following, class_name: "Follow", foreign_key: :follower_id, dependent: :destroy
+  has_many :followed_users, through: :following, source: :followed
+  has_many :followers, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy
+  has_many :follower_users, through: :followers, source: :follower
 
   scope :by_email_or_username, ->(identifier) {
     where("LOWER(email) = LOWER(?) OR LOWER(username) = LOWER(?)", identifier, identifier)
@@ -50,6 +56,8 @@ end
 #  last_name            :string             null
 #  avatar_url           :string             null
 #  username             :string             null
+#  bio                  :text               null
+#  timezone             :string             null, default("UTC")
 #
 # Indexes
 #

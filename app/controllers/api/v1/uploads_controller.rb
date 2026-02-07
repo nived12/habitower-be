@@ -3,7 +3,8 @@
 module Api
   module V1
     class UploadsController < BaseController
-      def signed_url
+      # POST /api/v1/uploads
+      def create
         bucket = Rails.application.credentials.dig(:gcs, :bucket) || ENV["GCS_BUCKET"]
         filename = params[:filename].presence
         content_type = params[:content_type].presence
@@ -32,7 +33,6 @@ module Api
 
         @url = result.payload[:url]
         @object_key = result.payload[:object_key]
-        render(:signed_url, status: :ok)
       end
     end
   end

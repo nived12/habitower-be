@@ -2,8 +2,8 @@
 
 require "swagger_helper"
 
-RSpec.describe("DELETE /api/v1/auth/logout", type: :request) do
-  path "/api/v1/auth/logout" do
+RSpec.describe("DELETE /api/v1/sessions", type: :request) do
+  path "/api/v1/sessions" do
     delete "Logout" do
       tags "Authentication"
       consumes "application/json"
@@ -16,7 +16,7 @@ RSpec.describe("DELETE /api/v1/auth/logout", type: :request) do
           User.create!(email: "logout@example.com", password: "password123", password_confirmation: "password123")
         end
         let(:Authorization) do
-          post "/api/v1/auth/login", params: { user: { email: login_user.email, password: "password123" } }.to_json,
+          post "/api/v1/sessions", params: { user: { email: login_user.email, password: "password123" } }.to_json,
             headers: { "Content-Type" => "application/json" }
           response.headers["Authorization"]
         end

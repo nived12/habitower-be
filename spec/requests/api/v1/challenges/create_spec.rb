@@ -76,6 +76,28 @@ RSpec.describe("POST /api/v1/challenges", type: :request) do
     end
   end
 
+  context "with category_ids" do
+    let(:category1) { create(:category, name: "Fitness", slug: "fitness") }
+    let(:category2) { create(:category, name: "Mindfulness", slug: "mindfulness") }
+    let(:request_params) do
+      {
+        challenge: {
+          title: "Fitness & Mind Challenge",
+          category_ids: [category1.id, category2.id]
+        }
+      }
+    end
+
+    it "creates a challenge with assigned categories" do
+      do_request
+      expect(response).to(have_http_status(:created))
+      expect(parsed_body["categories"]).to(be_an(Array))
+      expect(parsed_body["categories"].size).to(eq(2))
+      slugs = parsed_body["categories"].map { |c| c["slug"] }.sort
+      expect(slugs).to(eq(%w[fitness mindfulness]))
+    end
+  end
+
   context "with invalid params" do
     let(:request_params) { { challenge: { title: "" } } }
 

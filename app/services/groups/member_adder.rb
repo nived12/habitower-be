@@ -13,10 +13,10 @@ module Groups
     end
 
     def call
-      return failure("Only group admins can add members") unless admin?
+      return failure("Only group admins can add members", http_status: :forbidden) unless admin?
 
       user = find_user
-      return failure("User not found with identifier: #{identifier}") if user.nil?
+      return failure("User not found with identifier: #{identifier}", http_status: :not_found) if user.nil?
       return failure("User is already a member of this group") if already_member?(user)
 
       membership = create_membership(user)
@@ -45,11 +45,7 @@ module Groups
         existing_discarded.undiscard!
         existing_discarded
       else
-        Membership.create!(
-          group: group,
-          user: user,
-          role: role,
-        )
+        Membership.create!(group: group, user: user, role: role)
       end
     end
   end

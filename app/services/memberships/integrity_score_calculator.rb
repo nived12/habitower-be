@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 module Memberships
-  class IntegrityCalculator < ApplicationService
+  # Computes a 0–100 integrity score for a membership over a lookback window:
+  # expected vs actual progress logs per step, with penalties for missing logs.
+  class IntegrityScoreCalculator < ApplicationService
+    include PeriodForGroup
+
     LOOKBACK_DAYS = 14
     BASE_PENALTY = 5.0
 
@@ -20,7 +24,7 @@ module Memberships
       start_date = end_date - (LOOKBACK_DAYS - 1).days
 
       current_period = current_period_for_group(group, end_date)
-      active_steps = group.group_steps.kept.where("position <= ?", current_period).order(:position)
+      active_steps = group.group_steps.kept.where("position <= ?", current_period).order(:position).to_a
 
       total_penalty = 0.0
       active_steps.each do |step|
@@ -33,23 +37,13 @@ module Memberships
 
       score = (100.0 - total_penalty).round(2)
       score = [[score, 0].max, 100].min
+
       success(score)
     end
 
     private
 
-    def current_period_for_group(group, on_date)
-      return 0 if group.start_date > on_date
-
-      if group.challenge_template.weekly?
-        ((on_date - group.start_date).to_i / 7) + 1
-      else
-        (on_date.year * 12 + on_date.month) - (group.start_date.year * 12 + group.start_date.month) + 1
-      end
-    end
-
     def expected_logs_for_step(step)
-      # From step.requirements or group.rules; default daily = 14 in 14 days
       freq = step.requirements["frequency"] || step.requirements["frequency_per_week"] || "daily"
       case freq.to_s
       when "weekly" then 2

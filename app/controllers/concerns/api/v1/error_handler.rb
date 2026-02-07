@@ -65,6 +65,21 @@ module Api
         )
       end
 
+      # Renders error with status code derived from http_status. Use for service failures.
+      def render_error_for_status(detail, http_status = :unprocessable_content)
+        render_error(default_status_code_for(http_status), detail, http_status)
+      end
+
+      def default_status_code_for(http_status)
+        case http_status
+        when :not_found then "404"
+        when :forbidden then "403"
+        when :unauthorized then "401"
+        when :internal_server_error then "500"
+        else "422"
+        end
+      end
+
       def render_service_errors(errors)
         api_errors = errors.map do |error|
           {

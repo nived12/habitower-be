@@ -2,14 +2,14 @@
 
 require "rails_helper"
 
-RSpec.describe("DELETE /api/v1/groups/:id/leave", type: :request) do
+RSpec.describe("DELETE /api/v1/groups/:group_id/memberships/:id (leave)", type: :request) do
   let(:user) { create(:user) }
   let(:creator) { create(:user) }
   let(:challenge_template) { create(:challenge_template, creator: creator) }
   let(:group) { create(:group, challenge_template: challenge_template, creator: creator) }
 
   subject(:do_request) do
-    delete "/api/v1/groups/#{group.id}/leave", headers: auth_headers(user)
+    delete "/api/v1/groups/#{group.id}/memberships/#{membership&.id}", headers: auth_headers(user)
   end
 
   context "when user is a member" do
@@ -41,6 +41,8 @@ RSpec.describe("DELETE /api/v1/groups/:id/leave", type: :request) do
   end
 
   context "when user is not a member" do
+    let(:membership) { create(:membership, group: group, user: create(:user)) }
+
     before { do_request }
 
     it "returns 403 Forbidden" do
@@ -49,8 +51,10 @@ RSpec.describe("DELETE /api/v1/groups/:id/leave", type: :request) do
   end
 
   context "when group does not exist" do
+    let(:membership) { nil }
+
     subject(:do_request) do
-      delete "/api/v1/groups/999999/leave", headers: auth_headers(user)
+      delete "/api/v1/groups/999999/memberships/1", headers: auth_headers(user)
     end
 
     before { do_request }
@@ -61,8 +65,10 @@ RSpec.describe("DELETE /api/v1/groups/:id/leave", type: :request) do
   end
 
   context "when not authenticated" do
+    let!(:membership) { create(:membership, group: group, user: user) }
+
     subject(:do_request) do
-      delete "/api/v1/groups/#{group.id}/leave", headers: json_headers
+      delete "/api/v1/groups/#{group.id}/memberships/#{membership.id}", headers: json_headers
     end
 
     before { do_request }

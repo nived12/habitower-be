@@ -2,14 +2,14 @@
 
 require "rails_helper"
 
-RSpec.describe("DELETE /api/v1/auth/logout", type: :request) do
+RSpec.describe("DELETE /api/v1/sessions", type: :request) do
   let!(:user) do
     User.create!(email: "logout@example.com", password: "password123", password_confirmation: "password123")
   end
 
   def auth_headers
     post(
-      "/api/v1/auth/login",
+      "/api/v1/sessions",
       params: { user: { email: user.email, password: "password123" } }.to_json,
       headers: json_headers
     )
@@ -17,7 +17,7 @@ RSpec.describe("DELETE /api/v1/auth/logout", type: :request) do
   end
 
   subject(:do_request) do
-    delete "/api/v1/auth/logout", headers: request_headers
+    delete "/api/v1/sessions", headers: request_headers
   end
 
   context "with a valid JWT" do

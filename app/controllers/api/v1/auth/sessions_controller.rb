@@ -8,12 +8,14 @@ module Api
 
         private
 
+        # POST /api/v1/sessions
         def respond_with(resource, _opts = {})
           @user = resource
           @refresh_token = create_refresh_token_for(resource)
-          render(:create, status: :ok)
+          render(:create)
         end
 
+        # DELETE /api/v1/sessions
         def respond_to_on_destroy(_resource)
           revoke_refresh_token_if_present
           render(json: { message: I18n.t("devise.sessions.signed_out") }, status: :ok)

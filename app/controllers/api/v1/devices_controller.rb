@@ -3,6 +3,7 @@
 module Api
   module V1
     class DevicesController < BaseController
+      # POST /api/v1/devices
       def create
         platform = params[:platform].presence
         token = params[:token].presence
