@@ -32,6 +32,7 @@ module Api
           creator: current_user,
           privacy_type: group_params[:privacy_type] || "public",
           start_date: group_params[:start_date],
+          title: group_params[:title],
         )
 
         if result.failure?
@@ -67,7 +68,7 @@ module Api
       end
 
       def group_params
-        params.require(:group).permit(:challenge_template_id, :privacy_type, :start_date)
+        params.require(:group).permit(:challenge_template_id, :privacy_type, :start_date, :title)
       end
     end
   end

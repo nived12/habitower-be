@@ -36,6 +36,11 @@ class Group < ApplicationRecord
       months_elapsed
     end
   end
+
+  # Title shown in API: group title if set, otherwise challenge template title
+  def display_title
+    title.presence || challenge_template.title
+  end
 end
 
 # == Schema Information

@@ -682,6 +682,10 @@ paths:
                       type: string
                       format: date
                       example: '2026-02-01'
+                    title:
+                      type: string
+                      nullable: true
+                      description: Optional custom group title; if omitted, response uses challenge template title
                   required:
                   - challenge_id
               required:
@@ -746,6 +750,10 @@ paths:
                       enum:
                       - public
                       - private
+                    title:
+                      type: string
+                      nullable: true
+                      description: Optional custom group title; if omitted, response uses challenge template title
               required:
               - group
     delete:

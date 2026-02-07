@@ -4,14 +4,15 @@ module Groups
   class Creator < ApplicationService
     INVITE_CODE_LENGTH = 6
 
-    attr_reader :challenge_template, :creator, :privacy_type, :start_date
+    attr_reader :challenge_template, :creator, :privacy_type, :start_date, :title
 
-    def initialize(challenge_template:, creator:, privacy_type: "public", start_date: nil)
+    def initialize(challenge_template:, creator:, privacy_type: "public", start_date: nil, title: nil)
       super()
       @challenge_template = challenge_template
       @creator = creator
       @privacy_type = privacy_type
       @start_date = start_date
+      @title = title.presence
     end
 
     def call
@@ -37,6 +38,7 @@ module Groups
         privacy_type: privacy_type,
         start_date: calculated_start_date,
         invite_code: generate_invite_code,
+        title: title,
       )
     end
 
