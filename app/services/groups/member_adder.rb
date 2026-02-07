@@ -45,11 +45,7 @@ module Groups
         existing_discarded.undiscard!
         existing_discarded
       else
-        Membership.create!(
-          group: group,
-          user: user,
-          role: role,
-        )
+        Membership.create!(group: group, user: user, role: role)
       end
     end
   end

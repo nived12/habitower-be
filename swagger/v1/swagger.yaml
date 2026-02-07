@@ -4,7 +4,7 @@ info:
   title: Habitower API V1
   version: v1
 paths:
-  "/api/v1/auth/refresh":
+  "/api/v1/sessions/refresh":
     post:
       summary: Refresh access token
       tags:
@@ -26,9 +26,9 @@ paths:
                   description: Valid refresh token from login
               required:
               - refresh_token
-  "/api/v1/auth/sign_up":
+  "/api/v1/users":
     post:
-      summary: Sign up
+      summary: Create user (sign up)
       tags:
       - Authentication
       parameters: []
@@ -71,9 +71,9 @@ paths:
                   - password_confirmation
               required:
               - user
-  "/api/v1/auth/login":
+  "/api/v1/sessions":
     post:
-      summary: Login
+      summary: Create session (login)
       tags:
       - Authentication
       parameters: []
@@ -102,7 +102,6 @@ paths:
                   - password
               required:
               - user
-  "/api/v1/auth/logout":
     delete:
       summary: Logout
       tags:
@@ -524,7 +523,7 @@ paths:
               - token
   "/api/v1/feed":
     get:
-      summary: List feed items
+      summary: Get current user feed
       tags:
       - Feed
       security:
@@ -561,7 +560,7 @@ paths:
           description: success
         '401':
           description: unauthorized
-  "/api/v1/follows":
+  "/api/v1/me/following":
     get:
       summary: List users the current user follows
       tags:
@@ -578,6 +577,7 @@ paths:
       responses:
         '200':
           description: success
+  "/api/v1/follows":
     post:
       summary: Follow a user
       tags:
@@ -604,7 +604,7 @@ paths:
                   type: integer
               required:
               - followed_id
-  "/api/v1/followers":
+  "/api/v1/me/followers":
     get:
       summary: List followers of the current user
       tags:
@@ -766,70 +766,6 @@ paths:
           description: no content
         '403':
           description: forbidden (not owner)
-  "/api/v1/groups/{id}/join":
-    parameters:
-    - name: id
-      in: path
-      required: true
-      description: Group ID
-      schema:
-        type: integer
-    post:
-      summary: Join a group
-      tags:
-      - Groups
-      security:
-      - bearer_auth: []
-      parameters:
-      - name: Authorization
-        in: header
-        required: true
-        description: Bearer JWT
-        schema:
-          type: string
-      responses:
-        '201':
-          description: joined successfully
-        '403':
-          description: invalid invite code
-        '422':
-          description: already a member
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                invite_code:
-                  type: string
-                  example: ABC123
-                  description: Required for private groups
-  "/api/v1/groups/{id}/leave":
-    parameters:
-    - name: id
-      in: path
-      required: true
-      description: Group ID
-      schema:
-        type: integer
-    delete:
-      summary: Leave a group
-      tags:
-      - Groups
-      security:
-      - bearer_auth: []
-      parameters:
-      - name: Authorization
-        in: header
-        required: true
-        description: Bearer JWT
-        schema:
-          type: string
-      responses:
-        '204':
-          description: left successfully
-        '403':
-          description: forbidden (creator cannot leave)
   "/api/v1/groups/{group_id}/member-towers":
     parameters:
     - name: group_id
@@ -995,7 +931,7 @@ paths:
         '404':
           description: group not found
     post:
-      summary: Add a member to the group (admin only)
+      summary: Create membership (join with invite_code, or admin add with identifier)
       tags:
       - Groups
       security:
@@ -1011,7 +947,9 @@ paths:
         '201':
           description: created
         '403':
-          description: forbidden (not admin)
+          description: invalid invite code
+        '422':
+          description: already a member
         '401':
           description: unauthorized
       requestBody:
@@ -1022,15 +960,16 @@ paths:
               properties:
                 identifier:
                   type: string
-                  description: Email or username of user to add
+                  description: Email or username (admin add only)
+                invite_code:
+                  type: string
+                  description: Required for private groups when joining
                 role:
                   type: string
                   enum:
                   - member
                   - admin
                   example: member
-              required:
-              - identifier
   "/api/v1/groups/{group_id}/memberships/{id}":
     parameters:
     - name: group_id
@@ -1046,7 +985,7 @@ paths:
       schema:
         type: integer
     delete:
-      summary: Remove a member from the group (admin only)
+      summary: Remove a member or leave (admin or own membership)
       tags:
       - Groups
       security:
@@ -1062,7 +1001,7 @@ paths:
         '204':
           description: no content
         '403':
-          description: forbidden (not admin)
+          description: forbidden (creator cannot leave)
         '401':
           description: unauthorized
   "/api/v1/notifications":
@@ -1094,7 +1033,7 @@ paths:
           description: success
         '401':
           description: unauthorized
-  "/api/v1/notifications/{id}/read":
+  "/api/v1/notifications/{id}":
     parameters:
     - name: id
       in: path
@@ -1102,7 +1041,7 @@ paths:
       description: Notification ID
       schema:
         type: integer
-    post:
+    patch:
       summary: Mark notification as read
       tags:
       - Notifications
@@ -1227,16 +1166,16 @@ paths:
               required:
               - group_step_id
               - value
-  "/api/v1/progress_logs/{id}/react":
+  "/api/v1/progress_logs/{progress_log_id}/reactions":
     parameters:
-    - name: id
+    - name: progress_log_id
       in: path
       required: true
       description: Progress log ID
       schema:
         type: integer
     post:
-      summary: Toggle reaction on a progress log
+      summary: Create or toggle reaction on a progress log
       tags:
       - Progress Logs
       security:
@@ -1250,7 +1189,9 @@ paths:
           type: string
       responses:
         '200':
-          description: success
+          description: success (toggle off existing reaction)
+        '201':
+          description: created
       requestBody:
         content:
           application/json:
@@ -1263,9 +1204,9 @@ paths:
                   - high_five
                   - nudge
                   example: high_five
-  "/api/v1/uploads/signed_url":
-    get:
-      summary: Get a signed URL for uploading a file
+  "/api/v1/uploads":
+    post:
+      summary: Create upload (get signed URL)
       tags:
       - Uploads
       security:
@@ -1277,18 +1218,6 @@ paths:
         description: Bearer JWT
         schema:
           type: string
-      - name: filename
-        in: query
-        required: true
-        description: Original filename
-        schema:
-          type: string
-      - name: content_type
-        in: query
-        required: false
-        description: MIME type
-        schema:
-          type: string
       responses:
         '200':
           description: success
@@ -1296,6 +1225,20 @@ paths:
           description: filename required
         '401':
           description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  example: photo.jpg
+                content_type:
+                  type: string
+                  example: image/jpeg
+              required:
+              - filename
 servers:
 - url: https://{defaultHost}
   variables:
